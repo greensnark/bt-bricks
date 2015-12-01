@@ -153,7 +153,7 @@
     };
 
     return {
-      'type': 'ball',
+      type: 'ball',
       radius: radius || C.ball.radius,
       oldp: M.pos(0, 0),
       p: randomBallPos(),
@@ -257,11 +257,10 @@
           return;
         }
         var box = bbox || obj.getBBox();
-        for (var y = box.y1; y <= box.y2; y += C.gridSize) {
-          for (var x = box.x1; x <= box.x2; x += C.gridSize) {
-            this.registerAt(x, y, obj);
-          }
-        }
+        this.eachCell(box, function (x, y) {
+          this.registerAt(x, y, obj);
+        });
+        this.registerAt(box.x2, box.y2, obj);
       },
 
       remove: function (obj, bbox) {
@@ -269,12 +268,19 @@
           return;
         }
         var box = bbox || obj.getBBox();
+        this.eachCell(box, function (x, y) {
+          this.removeAt(x, y, obj);
+        });
+        this.removeAt(box.x2, box.y2, obj);
+      },
+
+      eachCell: function (box, fn) {
+        fn = fn.bind(this);
         for (var y = box.y1; y <= box.y2; y += C.gridSize) {
           for (var x = box.x1; x <= box.x2; x += C.gridSize) {
-            this.removeAt(x, y, obj);
+            fn(x, y);
           }
         }
-        this.removeAt(box.x2, box.y2, obj);
       },
 
       gridIndex: function (pos) {
