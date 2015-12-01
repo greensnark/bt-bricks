@@ -48,9 +48,10 @@
           this.y = o.y;
         },
 
-        addPolar: function (mag, angle) {
-          this.x += mag * Math.cos(angle);
-          this.y += mag * Math.sin(angle);
+        addPolar: function (mag, angleDegrees) {
+          var rad = M.radian(angleDegrees);
+          this.x += mag * Math.cos(rad);
+          this.y += mag * Math.sin(rad);
         }
       };
     }
@@ -67,7 +68,7 @@
       radius: radius || C.ball.radius,
       oldp: M.pos(0, 0),
       p: randomBallPos(),
-      angle: M.radian(R.randRange(225, 315)),
+      angle: R.randRange(225, 315),
       speed: 8,
       increment: 2,
 
@@ -83,8 +84,6 @@
       },
 
       animate: function (c) {
-        this.oldp.assign(this.p);
-
         var count = this.speed / this.increment;
         for (var i = 0; i < count; ++i) {
           this.p.addPolar(this.increment, this.angle);
@@ -95,13 +94,12 @@
 
       collide: function (c) {
         var angle = this.angle;
-        var low = angle - Math.PI / 2,
-            high = angle + Math.PI / 2;
-        var delta = M.radian(5);
+        var low = angle - 90,
+            high = angle + 90;
+        var delta = 5;
 
         var minCollide = -5000, maxCollide = -5000;
-        var epsilon = 1e-5;
-        for (var theta = low; theta <= high + epsilon; theta += delta) {
+        for (var theta = low; theta <= high; theta += delta) {
           if (this.collidesAtAngle(theta)) {
             minCollide = theta;
             break;
@@ -111,7 +109,7 @@
           return;
         }
 
-        for (var theta = high; theta > minCollide - epsilon; theta -= delta) {
+        for (var theta = high; theta > minCollide; theta -= delta) {
           if (this.collidesAtAngle(theta)) {
             maxCollide = theta;
             break;
@@ -122,8 +120,8 @@
         }
 
         var collideAngle = (minCollide + maxCollide) / 2;
-        console.log("Collision detected: " + M.degree(minCollide) + " to " +
-                    M.degree(maxCollide) + ", center: " + M.degree(collideAngle));
+        console.log("Collision detected: " + minCollide + " to " +
+                    maxCollide + ", center: " + collideAngle);
 
         var oldAngle = this.angle;
         this.angle = this.bounceAngle(collideAngle);
@@ -131,15 +129,16 @@
 
       bounceAngle: function (collideAngle) {
         var delta = this.angle - collideAngle;
-        var bounceAngle = (this.angle + (Math.PI - 2 * delta)) % (2 * Math.PI);
-        console.log("bounceAngle(" + M.degree(collideAngle) + ", theta=" +
-                    M.degree(this.angle) + ") = " + M.degree(bounceAngle));
+        var bounceAngle = Math.round(this.angle + (180 - 2 * delta)) % 360;
+        console.log("bounceAngle(" + collideAngle + ", theta=" +
+                    this.angle + ") = " + bounceAngle);
         return bounceAngle;
       },
 
       collidesAtAngle: function (theta) {
-        var x = this.p.x + this.radius * Math.cos(theta),
-            y = this.p.y + this.radius * Math.sin(theta);
+        var rad = M.radian(theta);
+        var x = this.p.x + this.radius * Math.cos(rad),
+            y = this.p.y + this.radius * Math.sin(rad);
         return this.collidesAtPoint(x, y);
       },
 
