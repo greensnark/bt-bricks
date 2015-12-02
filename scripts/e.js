@@ -36,6 +36,13 @@
   C.right = C.width;
   C.bottom = C.height;
 
+  var State = {
+    pregame: 0,
+    game: 1,
+    outofplay: 2,
+    postgame: 3
+  };
+
   var R = {
     rand: function (high) {
       return Math.floor(Math.random() * high);
@@ -78,7 +85,7 @@
     return {
       type: 'paddle',
       collisionTarget: true,
-      p: M.pos(Math.floor(C.width / 2), C.height - C.bat.heightOffset),
+      p: M.pos(0, 0),
       width: 55,
       height: 8,
 
@@ -91,6 +98,10 @@
         y2: 0
       },
 
+      init: function () {
+        this.p = M.pos(Math.floor(C.width / 2), C.height - C.bat.heightOffset);
+      },
+      
       getBBox: function () {
         this.bbox.x1 = this.p.x - this.width / 2;
         this.bbox.x2 = this.p.x + this.width / 2;
@@ -117,6 +128,9 @@
       },
 
       applyMovement: function () {
+        if (this.world.state !== State.game) {
+          return;
+        }
         var world = this.world;
         var oldBBox = this.getBBox();
         var didMove = false;
@@ -147,22 +161,29 @@
   };
 
   var Ball = function (radius) {
-    var randomBallPos = function () {
-      return M.pos(R.randRange(C.ball.gutter, C.width - C.ball.gutter),
-                   C.height - C.ball.startHeightOffset);
-    };
-
     return {
       type: 'ball',
       radius: radius || C.ball.radius,
-      oldp: M.pos(0, 0),
-      p: randomBallPos(),
-      angle: R.randRange(225, 315),
+      p: M.pos(0, 0),
+      angle: 0,
       speed: 8,
       increment: 2,
 
+      flashCounter: 0,
+      flashDirection: -1,
+      flashAlpha: 1.0,
+      flashThreshold: 12,
+
+      flashTimes: 0,
+      maxFlashCount: 9,
+
+      init: function () {
+        this.p = M.pos(C.width / 2, C.height - C.ball.startHeightOffset);
+        this.angle = R.randRange(225, 315);
+      },
+      
       show: function (c, p, color) {
-        c.fillStyle = color || 'red';
+        c.fillStyle = color || 'rgba(255, 0, 0, 1)';
         c.beginPath();
         c.arc(p.x, p.y, this.radius, 0, 2 * Math.PI, true);
         c.fill();
@@ -173,11 +194,54 @@
       },
 
       animate: function (c) {
+        switch (this.world.state) {
+        case State.pregame:
+          this.show(c, this.p);
+          break;
+        case State.game:
+          this.move(c);
+          break;
+        case State.outofplay:
+          this.flash(c);
+          break;
+        default:
+          break;
+        }
+      },
+
+      move: function (c) {
         for (var i = 0; i < this.speed; i += this.increment) {
           this.p.addPolar(this.increment, this.angle);
           this.collide(c);
+
+          if (this.isOutOfBounds()) {
+            this.endGame();
+            break;
+          }
         }
         this.show(c, this.p);
+      },
+
+      endGame: function () {
+        console.error("Game over");
+        this.world.setState(State.outofplay);
+      },
+
+      isOutOfBounds: function () {
+        return this.p.y > (C.height - C.ball.startHeightOffset / 2);
+      },
+
+      flash: function (c) {
+        if (++this.flashCounter >= this.flashThreshold) {
+          this.flashDirection = -this.flashDirection;
+          this.flashCounter = 0;
+          if (++this.flashTimes >= this.maxFlashCount) {
+            this.flashTimes = 0;
+            this.world.setState(State.postgame);
+          }
+        }
+        this.flashAlpha += this.flashDirection * (1.0 / this.maxFlashCount);
+        this.show(c, this.p, 'rgba(255, 0, 0, ' + this.flashAlpha + ')');
       },
 
       collide: function (c) {
@@ -342,6 +406,7 @@
       keys: [],
 
       grid: ObjectGrid(),
+      state: State.pregame,
       
       wall: {
         type: 'wall'
@@ -350,10 +415,16 @@
       paused: false,
 
       init: function () {
+        this.setState(State.pregame);
         this.registerObjects();
+        this.reset();
         document.addEventListener('keypress', this.onKeyPress.bind(this));
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
+      },
+
+      setState: function (state) {
+        this.state = state;
       },
 
       collidesAtPoint: function (actor, x, y) {
@@ -361,10 +432,9 @@
           return this.wall;
         }
 
-        for (var i = 0, length = this.objects.length; i < length; ++i) {
-        // var candidates = this.grid.objectsAt(x, y);
-        // for (var i = 0, length = candidates.length; i < length; ++i) {
-          var obj = this.objects[i];
+        var candidates = this.grid.objectsAt(x, y);
+        for (var i = 0, length = candidates.length; i < length; ++i) {
+          var obj = candidates[i];
           if (obj === actor) {
             continue;
           }
@@ -388,9 +458,15 @@
         for (var i = 0, length = this.bricks; i < length; ++i) {
           this.objects.push(this.bricks[i]);
         }
+      },
 
+      reset: function () {
         for (var i = 0, length = this.objects.length; i < length; ++i) {
-          this.objects[i].world = this;
+          var obj = this.objects[i];
+          obj.world = this;
+          if (obj.init) {
+            obj.init();
+          }
         }
       },
 
@@ -415,6 +491,11 @@
       },
       
       onKeyDown: function (e) {
+        if (this.state === State.pregame || this.state === State.postgame) {
+          this.reset();
+          this.setState(this.state === State.postgame ? State.pregame : State.game);
+        }
+        
         if (this.isMovementKey(e.keyCode)) {
           this.keys[e.keyCode] = 1;
         }
