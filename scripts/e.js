@@ -149,7 +149,7 @@
       type: 'paddle',
       collisionTarget: true,
       p: M.pos(0, 0),
-      width: 55,
+      width: 75,
       height: 8,
 
       move: 12,
