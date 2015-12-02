@@ -228,7 +228,7 @@
       },
 
       isOutOfBounds: function () {
-        return this.p.y > (C.height - C.ball.startHeightOffset / 2);
+        return this.p.y > (C.height - C.ball.startHeightOffset / 3);
       },
 
       flash: function (c) {
