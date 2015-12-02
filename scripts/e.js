@@ -2,7 +2,7 @@
 
 (function () {
   var C = {
-    width: 800,
+    width: 850,
     height: 600,
 
     gridSize: 100,
@@ -13,6 +13,7 @@
     background: '#fff',
 
     block: {
+      offsetX: 25,
       width: 15,
       height: 7,
       gutter: 1
@@ -105,13 +106,20 @@
       },
 
       active: true,
+      needRemove: false,
 
       init: function () {
         this.active = true;
+        this.needRemove = false;
       },
 
       getBBox: function () {
         return this.bbox;
+      },
+
+      collideWith: function (thing) {
+        this.active = false;
+        this.needRemove = true;
       },
 
       containsPoint: function (x, y) {
@@ -120,6 +128,10 @@
       
       render: function (c) {
         if (!this.active) {
+          if (this.needRemove) {
+            this.world.grid.remove(this);
+            this.needRemove = false;
+          }
           return;
         }
         c.fillStyle = '#009dec';
@@ -303,7 +315,11 @@
 
         var minCollide = -5000, maxCollide = -5000;
         for (var theta = low; theta <= high; theta += delta) {
-          if (this.collidesAtAngle(theta)) {
+          var obj = this.collidesAtAngle(theta);
+          if (obj) {
+            if (obj.collideWith) {
+              obj.collideWith(this);
+            }
             minCollide = theta;
             break;
           }
@@ -313,7 +329,11 @@
         }
 
         for (theta = high; theta > minCollide; theta -= delta) {
-          if (this.collidesAtAngle(theta)) {
+          var obj = this.collidesAtAngle(theta);
+          if (obj) {
+            if (obj.collideWith) {
+              obj.collideWith(this);
+            }
             maxCollide = theta;
             break;
           }
@@ -329,8 +349,12 @@
 
       bounceAngle: function (collideAngle) {
         var delta = this.angle - collideAngle;
-        var bounceAngle = Math.round(this.angle + (180 - 2 * delta)) % 360;
+        var bounceAngle = Math.round(this.angle + (180 - 2 * delta) + this.bounceFuzz()) % 360;
         return bounceAngle;
+      },
+
+      bounceFuzz: function () {
+        return (R.randRange(-4, 4) + R.randRange(-4, 4)) / 2;
       },
 
       collidesAtAngle: function (theta) {
@@ -509,7 +533,7 @@
       registerObjects: function () {
         for (var i = 0, length = brickPositions.length; i < length; ++i) {
           var p = brickPositions[i];
-          this.bricks.push(Brick(p.x, p.y));
+          this.bricks.push(Brick(p.x + C.block.offsetX, p.y));
         }
         
         for (i = 0, length = this.bricks.length; i < length; ++i) {
