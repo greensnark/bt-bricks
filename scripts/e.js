@@ -99,7 +99,7 @@
       },
 
       init: function () {
-        this.p = M.pos(Math.floor(C.width / 2), C.height - C.bat.heightOffset);
+        this.p = M.pos(Math.floor(C.width / 2) - 0.5, C.height - C.bat.heightOffset);
       },
       
       getBBox: function () {
