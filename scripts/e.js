@@ -56,7 +56,8 @@
     },
 
     scoreRanks: [
-      { sc: 150, title: 'Grand Moff' },
+      { sc: 400, title: 'Sith Lord' },
+      { sc: 200, title: 'Grand Moff' },
       { sc: 100, title: 'Chief Executive Officer' },
       { sc: 80, title: 'Chief Finagling Officer' },
       { sc: 50, title: 'Vice President, Brickonomics' },
@@ -835,7 +836,6 @@
         };
 
         for (i = 0, length = namedBricks.length; i < length; ++i) {
-          console.log("Setting name to " + namedBricks[i]);
           nextBrick().setName(namedBricks[i]);
         }
       },
