@@ -209,7 +209,7 @@
       y: y,
       velocity: 0,
       maxVelocity: 10,
-      acceleration: 0.1,
+      acceleration: 0.05,
       alpha: 1,
 
       render: function (c) {

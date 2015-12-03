@@ -1,6 +1,7 @@
 html, body {
   padding: 0;
   margin: 0;
+  background: #eaf8fe;
 }
 
 div {
@@ -8,8 +9,26 @@ div {
   margin: 0;
 }
 
+#backdrop {
+  z-index: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.4;
+
+  background: no-repeat top/100% url("ea-background.png");
+}
+
+#easter {
+  margin-top: 100px;
+}
+
 canvas {
+  position: relative;
+  z-index: 5;
   display: block;
   margin: 15px auto;
-  border: 1px solid #ccc;
+  border: 1px solid #888;
 }
