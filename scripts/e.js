@@ -56,6 +56,7 @@
     },
 
     scoreRanks: [
+      { sc: 125, title: 'Grand Moff' },
       { sc: 100, title: 'Chief Executive Officer' },
       { sc: 80, title: 'Chief Finagling Officer' },
       { sc: 50, title: 'Vice President, Brickonomics' },
