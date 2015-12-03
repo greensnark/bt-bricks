@@ -815,14 +815,12 @@
       },
 
       clearBrickNames: function () {
-        console.log("Clearing brick names");
         for (var i = 0, length = this.bricks.length; i < length; ++i) {
           this.bricks[i].clearName();
         }
       },
 
       assignBrickNames: function () {
-        console.log("Assigning names");
         var availableIndexes = [];
         for (var i = 0, length = this.bricks.length; i < length; ++i) {
           availableIndexes.push(i);
