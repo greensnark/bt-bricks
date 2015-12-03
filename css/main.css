@@ -9,7 +9,10 @@ div {
   margin: 0;
 }
 
-#backdrop {
+#ee-root {
+}
+
+#ee-backdrop {
   z-index: 0;
   position: absolute;
   left: 0;
@@ -18,9 +21,9 @@ div {
   height: 100%;
   opacity: 0.4;
 
-  background: no-repeat top/100% url("ea-background.png");
+  background: no-repeat top center/100% url("ea-background.png");
 }
 
-#easter {
+#ee-easter-body {
   margin-top: 15px;
 }

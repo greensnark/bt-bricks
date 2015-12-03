@@ -1053,10 +1053,18 @@
     gameState.init();
     gameState.render();
     gameState.startAnimation();
+    return gameState;
   }
 
   function ecanvas(sel) {
     var place = document.querySelector(sel);
+
+    var backdrop = place.querySelector('div#ee-backdrop');
+    if (!backdrop) {
+      backdrop = document.createElement('div');
+      backdrop.setAttribute('id', 'ee-backdrop');
+      place.appendChild(backdrop);
+    }
 
     var container = place.querySelector('div.ee-layout');
     if (!container) {
@@ -1131,5 +1139,11 @@
     };
   }
 
-  initializeEgg(ecanvas('#easter'));
+  window.btStartEgg = function () {
+    window.btEgg = initializeEgg(ecanvas('#ee-root'));
+  };
+
+  window.btStopEgg = function () {
+    window.btEgg.stop();
+  };
 })();
