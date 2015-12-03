@@ -12,6 +12,16 @@
 
     background: '#fff',
 
+    color: {
+      boxtone: '#009dec',
+      namedBrick: '#32cdfc',
+      namedBrickOutline: '#22e'
+    },
+
+    font: {
+      nameSprite: '14px Helvetica'
+    },
+    
     block: {
       offsetX: 25,
       width: 15,
@@ -27,7 +37,7 @@
     },
 
     ball: {
-      radius: 8,
+      radius: 6.5,
       gutter: 50,
       startHeightOffset: 50
     },
@@ -59,7 +69,8 @@
       return this.rand(high - low + 1) + low;
     }
   };
-  
+
+  var namedBricks = "aakirekadu adestefano aeapen aweston bscheffey dbhat dshaligram emalloy ganderson gginsberg gmiller hkesar jfarrow jgluck jjarrett jjordan klouis mberk mcovington mdonovan mgaffney mmack mnehrbass mramsay msmith psharma rfiste sbain sgirumala shqiu sknippenberg tsackett vgupta vpathak".split(' ');
   var brickPositions = [{"x":0,"y":32},{"x":16,"y":32},{"x":32,"y":32},{"x":48,"y":32},{"x":64,"y":32},{"x":368,"y":32},{"x":384,"y":32},{"x":400,"y":32},{"x":416,"y":32},{"x":432,"y":32},{"x":448,"y":32},{"x":0,"y":40},{"x":16,"y":40},{"x":32,"y":40},{"x":48,"y":40},{"x":64,"y":40},{"x":80,"y":40},{"x":368,"y":40},{"x":384,"y":40},{"x":400,"y":40},{"x":416,"y":40},{"x":432,"y":40},{"x":448,"y":40},{"x":0,"y":48},{"x":16,"y":48},{"x":32,"y":48},{"x":48,"y":48},{"x":64,"y":48},{"x":80,"y":48},{"x":368,"y":48},{"x":384,"y":48},{"x":400,"y":48},{"x":416,"y":48},{"x":432,"y":48},{"x":448,"y":48},{"x":0,"y":56},{"x":16,"y":56},{"x":32,"y":56},{"x":48,"y":56},{"x":64,"y":56},{"x":80,"y":56},{"x":96,"y":56},{"x":368,"y":56},{"x":384,"y":56},{"x":400,"y":56},{"x":416,"y":56},{"x":432,"y":56},{"x":448,"y":56},{"x":0,"y":64},{"x":16,"y":64},{"x":32,"y":64},{"x":64,"y":64},{"x":80,"y":64},{"x":96,"y":64},{"x":368,"y":64},{"x":384,"y":64},{"x":400,"y":64},{"x":416,"y":64},{"x":432,"y":64},{"x":448,"y":64},{"x":0,"y":72},{"x":16,"y":72},{"x":32,"y":72},{"x":64,"y":72},{"x":80,"y":72},{"x":96,"y":72},{"x":160,"y":72},{"x":176,"y":72},{"x":192,"y":72},{"x":240,"y":72},{"x":256,"y":72},{"x":272,"y":72},{"x":304,"y":72},{"x":320,"y":72},{"x":336,"y":72},{"x":384,"y":72},{"x":400,"y":72},{"x":416,"y":72},{"x":480,"y":72},{"x":496,"y":72},{"x":512,"y":72},{"x":528,"y":72},{"x":576,"y":72},{"x":592,"y":72},{"x":640,"y":72},{"x":656,"y":72},{"x":720,"y":72},{"x":736,"y":72},{"x":752,"y":72},{"x":0,"y":80},{"x":16,"y":80},{"x":32,"y":80},{"x":48,"y":80},{"x":64,"y":80},{"x":80,"y":80},{"x":144,"y":80},{"x":160,"y":80},{"x":176,"y":80},{"x":192,"y":80},{"x":208,"y":80},{"x":240,"y":80},{"x":256,"y":80},{"x":272,"y":80},{"x":288,"y":80},{"x":304,"y":80},{"x":320,"y":80},{"x":384,"y":80},{"x":400,"y":80},{"x":416,"y":80},{"x":464,"y":80},{"x":480,"y":80},{"x":496,"y":80},{"x":512,"y":80},{"x":528,"y":80},{"x":544,"y":80},{"x":576,"y":80},{"x":592,"y":80},{"x":640,"y":80},{"x":656,"y":80},{"x":704,"y":80},{"x":720,"y":80},{"x":736,"y":80},{"x":752,"y":80},{"x":768,"y":80},{"x":0,"y":88},{"x":16,"y":88},{"x":32,"y":88},{"x":48,"y":88},{"x":64,"y":88},{"x":80,"y":88},{"x":128,"y":88},{"x":144,"y":88},{"x":160,"y":88},{"x":176,"y":88},{"x":192,"y":88},{"x":208,"y":88},{"x":256,"y":88},{"x":272,"y":88},{"x":288,"y":88},{"x":304,"y":88},{"x":320,"y":88},{"x":384,"y":88},{"x":400,"y":88},{"x":416,"y":88},{"x":464,"y":88},{"x":480,"y":88},{"x":496,"y":88},{"x":512,"y":88},{"x":528,"y":88},{"x":544,"y":88},{"x":576,"y":88},{"x":592,"y":88},{"x":608,"y":88},{"x":624,"y":88},{"x":640,"y":88},{"x":656,"y":88},{"x":704,"y":88},{"x":720,"y":88},{"x":752,"y":88},{"x":768,"y":88},{"x":0,"y":96},{"x":16,"y":96},{"x":32,"y":96},{"x":48,"y":96},{"x":64,"y":96},{"x":80,"y":96},{"x":128,"y":96},{"x":144,"y":96},{"x":160,"y":96},{"x":176,"y":96},{"x":192,"y":96},{"x":208,"y":96},{"x":224,"y":96},{"x":256,"y":96},{"x":272,"y":96},{"x":288,"y":96},{"x":304,"y":96},{"x":320,"y":96},{"x":384,"y":96},{"x":400,"y":96},{"x":416,"y":96},{"x":464,"y":96},{"x":480,"y":96},{"x":496,"y":96},{"x":512,"y":96},{"x":528,"y":96},{"x":544,"y":96},{"x":576,"y":96},{"x":592,"y":96},{"x":608,"y":96},{"x":624,"y":96},{"x":640,"y":96},{"x":656,"y":96},{"x":688,"y":96},{"x":704,"y":96},{"x":720,"y":96},{"x":752,"y":96},{"x":768,"y":96},{"x":784,"y":96},{"x":0,"y":104},{"x":16,"y":104},{"x":32,"y":104},{"x":64,"y":104},{"x":80,"y":104},{"x":96,"y":104},{"x":128,"y":104},{"x":144,"y":104},{"x":192,"y":104},{"x":208,"y":104},{"x":224,"y":104},{"x":272,"y":104},{"x":288,"y":104},{"x":304,"y":104},{"x":384,"y":104},{"x":400,"y":104},{"x":416,"y":104},{"x":464,"y":104},{"x":480,"y":104},{"x":528,"y":104},{"x":544,"y":104},{"x":576,"y":104},{"x":592,"y":104},{"x":608,"y":104},{"x":640,"y":104},{"x":656,"y":104},{"x":688,"y":104},{"x":704,"y":104},{"x":720,"y":104},{"x":736,"y":104},{"x":752,"y":104},{"x":768,"y":104},{"x":784,"y":104},{"x":0,"y":112},{"x":16,"y":112},{"x":32,"y":112},{"x":64,"y":112},{"x":80,"y":112},{"x":96,"y":112},{"x":128,"y":112},{"x":144,"y":112},{"x":192,"y":112},{"x":208,"y":112},{"x":224,"y":112},{"x":272,"y":112},{"x":288,"y":112},{"x":304,"y":112},{"x":384,"y":112},{"x":400,"y":112},{"x":416,"y":112},{"x":464,"y":112},{"x":480,"y":112},{"x":528,"y":112},{"x":544,"y":112},{"x":576,"y":112},{"x":592,"y":112},{"x":608,"y":112},{"x":640,"y":112},{"x":656,"y":112},{"x":688,"y":112},{"x":704,"y":112},{"x":720,"y":112},{"x":736,"y":112},{"x":752,"y":112},{"x":768,"y":112},{"x":784,"y":112},{"x":0,"y":120},{"x":16,"y":120},{"x":32,"y":120},{"x":64,"y":120},{"x":80,"y":120},{"x":96,"y":120},{"x":128,"y":120},{"x":144,"y":120},{"x":192,"y":120},{"x":208,"y":120},{"x":224,"y":120},{"x":272,"y":120},{"x":288,"y":120},{"x":304,"y":120},{"x":384,"y":120},{"x":400,"y":120},{"x":416,"y":120},{"x":464,"y":120},{"x":480,"y":120},{"x":528,"y":120},{"x":544,"y":120},{"x":576,"y":120},{"x":592,"y":120},{"x":608,"y":120},{"x":640,"y":120},{"x":656,"y":120},{"x":688,"y":120},{"x":704,"y":120},{"x":720,"y":120},{"x":0,"y":128},{"x":16,"y":128},{"x":32,"y":128},{"x":48,"y":128},{"x":64,"y":128},{"x":80,"y":128},{"x":96,"y":128},{"x":128,"y":128},{"x":144,"y":128},{"x":160,"y":128},{"x":176,"y":128},{"x":192,"y":128},{"x":208,"y":128},{"x":224,"y":128},{"x":256,"y":128},{"x":272,"y":128},{"x":288,"y":128},{"x":304,"y":128},{"x":320,"y":128},{"x":384,"y":128},{"x":400,"y":128},{"x":416,"y":128},{"x":464,"y":128},{"x":480,"y":128},{"x":496,"y":128},{"x":512,"y":128},{"x":528,"y":128},{"x":544,"y":128},{"x":576,"y":128},{"x":592,"y":128},{"x":608,"y":128},{"x":640,"y":128},{"x":656,"y":128},{"x":688,"y":128},{"x":704,"y":128},{"x":720,"y":128},{"x":752,"y":128},{"x":768,"y":128},{"x":784,"y":128},{"x":0,"y":136},{"x":16,"y":136},{"x":32,"y":136},{"x":48,"y":136},{"x":64,"y":136},{"x":80,"y":136},{"x":96,"y":136},{"x":128,"y":136},{"x":144,"y":136},{"x":160,"y":136},{"x":176,"y":136},{"x":192,"y":136},{"x":208,"y":136},{"x":256,"y":136},{"x":272,"y":136},{"x":288,"y":136},{"x":304,"y":136},{"x":320,"y":136},{"x":384,"y":136},{"x":400,"y":136},{"x":416,"y":136},{"x":464,"y":136},{"x":480,"y":136},{"x":496,"y":136},{"x":512,"y":136},{"x":528,"y":136},{"x":544,"y":136},{"x":576,"y":136},{"x":592,"y":136},{"x":608,"y":136},{"x":640,"y":136},{"x":656,"y":136},{"x":704,"y":136},{"x":720,"y":136},{"x":736,"y":136},{"x":752,"y":136},{"x":768,"y":136},{"x":784,"y":136},{"x":0,"y":144},{"x":16,"y":144},{"x":32,"y":144},{"x":48,"y":144},{"x":64,"y":144},{"x":80,"y":144},{"x":144,"y":144},{"x":160,"y":144},{"x":176,"y":144},{"x":192,"y":144},{"x":208,"y":144},{"x":240,"y":144},{"x":256,"y":144},{"x":272,"y":144},{"x":304,"y":144},{"x":320,"y":144},{"x":336,"y":144},{"x":384,"y":144},{"x":400,"y":144},{"x":416,"y":144},{"x":464,"y":144},{"x":480,"y":144},{"x":496,"y":144},{"x":512,"y":144},{"x":528,"y":144},{"x":544,"y":144},{"x":576,"y":144},{"x":592,"y":144},{"x":608,"y":144},{"x":640,"y":144},{"x":656,"y":144},{"x":704,"y":144},{"x":720,"y":144},{"x":736,"y":144},{"x":752,"y":144},{"x":768,"y":144},{"x":0,"y":152},{"x":16,"y":152},{"x":32,"y":152},{"x":48,"y":152},{"x":64,"y":152},{"x":80,"y":152},{"x":160,"y":152},{"x":176,"y":152},{"x":192,"y":152},{"x":240,"y":152},{"x":256,"y":152},{"x":272,"y":152},{"x":304,"y":152},{"x":320,"y":152},{"x":336,"y":152},{"x":384,"y":152},{"x":400,"y":152},{"x":416,"y":152},{"x":480,"y":152},{"x":496,"y":152},{"x":512,"y":152},{"x":528,"y":152},{"x":576,"y":152},{"x":592,"y":152},{"x":640,"y":152},{"x":656,"y":152},{"x":720,"y":152},{"x":736,"y":152},{"x":752,"y":152},{"x":336,"y":80},{"x":160,"y":104},{"x":160,"y":120},{"x":160,"y":112},{"x":96,"y":48},{"x":352,"y":64},{"x":352,"y":56},{"x":352,"y":48},{"x":352,"y":40},{"x":352,"y":32},{"x":624,"y":80},{"x":624,"y":72},{"x":608,"y":152},{"x":224,"y":88},{"x":224,"y":136},{"x":96,"y":144}];  
 
   var M = {
@@ -98,6 +109,8 @@
       width: C.block.width,
       height: C.block.height,
 
+      name: undefined,
+
       bbox: {
         x1: x,
         y1: y,
@@ -109,8 +122,17 @@
       needRemove: false,
 
       init: function () {
+        this.clearName();
         this.active = true;
         this.needRemove = false;
+      },
+
+      setName: function (name) {
+        this.name = name;
+      },
+
+      clearName: function () {
+        this.name = undefined;
       },
 
       getBBox: function () {
@@ -118,8 +140,44 @@
       },
 
       collideWith: function (thing) {
-        this.active = false;
+        if (this.active) {
+          this.active = false;
+          if (this.name) {
+            this.animateNameDrop();
+            this.clearSurroundingBlocks(thing);
+          }
+        }
         this.needRemove = true;
+      },
+
+      // Animate the name falling away and fading.
+      animateNameDrop: function () {
+        this.world.addSprite(
+          NameSprite(this.name,
+                     Math.floor(x + C.block.width / 2),
+                     Math.floor(y + C.block.height / 2)));
+      },
+
+      clearSurroundingBlocks: function (thing) {
+        for (var y = -1; y <= 1; ++y) {
+          for (var x = -1; x <= 1; ++x) {
+            if ((!x && !y) || (x && y)) {
+              continue;
+            }
+            var blockX = Math.floor(this.p.x + (x + 0.5) * (C.block.width + C.block.gutter)),
+                blockY = Math.floor(this.p.y + (y + 0.5) * (C.block.height + C.block.gutter));
+            this.clearBlock(blockX, blockY);
+          }
+        }
+      },
+
+      clearBlock: function (x, y, thing) {
+        x = Math.floor(x);
+        y = Math.floor(y);
+        var object = this.world.collidesAtPoint(this, x, y);
+        if (object && object !== this) {
+          object.collideWith(thing);
+        }
       },
 
       containsPoint: function (x, y) {
@@ -134,12 +192,48 @@
           }
           return;
         }
-        c.fillStyle = '#009dec';
+        c.fillStyle = this.name? C.color.namedBrick : C.color.boxtone;
         c.fillRect(this.bbox.x1, this.bbox.y1, C.block.width, C.block.height);
       },
 
       animate: function (c) {
         this.render(c);
+      }
+    };
+  };
+
+  var NameSprite = function (name, x, y) {
+    return {
+      name: name,
+      x: x,
+      y: y,
+      velocity: 0,
+      maxVelocity: 10,
+      acceleration: 0.1,
+      alpha: 1,
+
+      render: function (c) {
+        c.font = C.font.nameSprite;
+        c.fillColor = 'rgba(30, 80, 150, ' + this.alpha + ')';
+        c.textAlign = 'center';
+        c.fillText(this.name, this.x, this.y);
+      },
+
+      animate: function (c) {
+        this.y += this.velocity;
+        this.velocity += this.acceleration;
+        if (this.velocity > this.maxVelocity) {
+          this.velocity = this.maxVelocity;
+        }
+        this.alpha -= 0.01;
+        if (this.alpha < 0) {
+          this.alpha = 0;
+        }
+        this.render(c);
+
+        if (this.alpha <= 0 || this.y >= C.height) {
+          this.world.removeSprite(this);
+        }
       }
     };
   };
@@ -214,7 +308,6 @@
 
         if (didMove) {
           var bbox = this.getBBox();
-          console.log("Moved to (" + bbox.x1 + "," + bbox.y1 + ")-(" + bbox.x2 + "," + bbox.y2 + ")");
           var grid = this.world.grid;
           grid.remove(this, oldBBox);
           grid.add(this);
@@ -501,6 +594,22 @@
         document.addEventListener('keyup', this.onKeyUp.bind(this));
       },
 
+      addSprite: function (sprite) {
+        if (this.objects.lastIndexOf(sprite) === -1) {
+          sprite.world = this;
+          this.objects.push(sprite);
+        }
+      },
+
+      removeSprite: function (sprite) {
+        var idx = this.objects.lastIndexOf(sprite);
+        if (idx !== -1) {
+          this.objects.splice(idx, 1);
+          return true;
+        }
+        return false;
+      },
+
       setState: function (state) {
         this.state = state;
       },
@@ -511,6 +620,9 @@
         }
 
         var candidates = this.grid.objectsAt(x, y);
+        if (!candidates) {
+          return undefined;
+        }
         for (var i = 0, length = candidates.length; i < length; ++i) {
           var obj = candidates[i];
           if (obj === actor) {
@@ -544,6 +656,31 @@
         this.objects.push(this.paddle);
       },
 
+      clearBrickNames: function () {
+        for (var i = 0, length = this.bricks.length; i < length; ++i) {
+          this.bricks[i].clearName();
+        }
+      },
+
+      assignBrickNames: function () {
+        var availableIndexes = [];
+        for (var i = 0, length = this.bricks.length; i < length; ++i) {
+          availableIndexes.push(i);
+        }
+
+        var bricks = this.bricks;
+        var nextBrick = function () {
+          var n = R.rand(availableIndexes.length);
+          var brick = bricks[availableIndexes[n]];
+          availableIndexes.splice(n, 1);
+          return brick;
+        };
+
+        for (i = 0, length = namedBricks.length; i < length; ++i) {
+          nextBrick().setName(namedBricks[i]);
+        }
+      },
+
       reset: function () {
         this.grid.clear();
         for (var i = 0, length = this.objects.length; i < length; ++i) {
@@ -556,6 +693,8 @@
             }
           }
         }
+        this.clearBrickNames();
+        this.assignBrickNames();
       },
 
       onKeyPress: function (e) {
@@ -609,7 +748,7 @@
       animate: function () {
         var context = this.canvas.getContext('2d');
         context.clearRect(0, 0, C.width, C.height);
-        for (var i = 0, length = this.objects.length; i < length; ++i) {
+        for (var i = this.objects.length - 1; i >= 0; --i) {
           this.objects[i].animate(context);
         }
       },
