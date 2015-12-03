@@ -74,9 +74,10 @@
   var State = {
     pregame: 0,
     game: 1,
-    outofplay: 2,
-    balllost: 3,
-    gameover: 4
+    screencleared: 2,
+    outofplay: 3,
+    balllost: 4,
+    gameover: 5
   };
 
   var R = {
@@ -165,6 +166,7 @@
       collideWith: function (thing) {
         if (this.active) {
           this.active = false;
+          this.world.destroyedBrick();
           this.world.score.add(this.getPoints());
           if (this.name) {
             this.world.addScalp(this.name);
@@ -656,8 +658,10 @@
         return 'Manatee';
       },
 
-      init: function () {
-        this.score = this.displayedScore = initial;
+      init: function (newgame) {
+        if (newgame) {
+          this.score = this.displayedScore = initial;
+        }
       },
       
       render: function (c) {
@@ -690,6 +694,7 @@
       ballReserve: BallReserve(),
       paddle: Paddle(),
       bricks: [],
+      destroyedBricks: 0,
       
       objects: [],
       keys: [],
@@ -699,6 +704,8 @@
 
       grid: ObjectGrid(),
       state: State.pregame,
+
+      nextScreenCountDown: 0,
       
       wall: {
         type: 'wall'
@@ -755,6 +762,10 @@
           } else {
             this.resetBallPaddle();
           }
+          break;
+        case State.screencleared:
+          this.score.add(15000);
+          this.nextScreenCountDown = 300;
           break;
         }
       },
@@ -828,28 +839,40 @@
         }
       },
 
-      resetBallPaddle: function () {
+      resetBallPaddle: function (c) {
         this.paddle.init();
         this.ball.init();
-        this.render();
+        this.render(c);
+      },
+
+      destroyedBrick: function () {
+        ++this.destroyedBricks;
+        if (this.destroyedBricks >= this.bricks.length) {
+          this.setState(State.screencleared);
+        }
       },
 
       reset: function () {
         this.clearScalps();
+        this.clearBrickNames();
+        this.assignBrickNames();
+
+        this.resetScreen(true);
+      },
+
+      resetScreen: function (newgame) {
+        this.destroyedBricks = 0;
         this.grid.clear();
         for (var i = 0, length = this.objects.length; i < length; ++i) {
           var obj = this.objects[i];
           obj.world = this;
           if (obj.init) {
-            obj.init();
+            obj.init(newgame);
             if (obj.collisionTarget) {
               this.grid.add(obj);
             }
           }
         }
-        this.clearBrickNames();
-        this.assignBrickNames();
-
         this.maxScore = this.calcMaxScore();
       },
 
@@ -882,6 +905,10 @@
       },
       
       onKeyDown: function (e) {
+        if (this.state === State.screencleared && this.nextScreenCountDown < 200) {
+          this.nextScreenCountDown = 0;
+        }
+        
         if (e.keyCode === C.key.enter || this.state === State.balllost) {
           if (this.state === State.pregame || this.state >= State.balllost) {
             if (this.state > State.balllost) {
@@ -906,8 +933,8 @@
         this.paused = paused;
       },
  
-      render: function () {
-        var context = this.canvas.getContext('2d');
+      render: function (c) {
+        var context = c || this.canvas.getContext('2d');
         for (var i = 0, length = this.objects; i < length; ++i) {
           this.objects[i].render(context);
         }
@@ -932,6 +959,16 @@
         case State.pregame:
           this.showPreGame(c);
           break;
+        case State.screencleared:
+          this.showScreenCleared(c);
+          if (--this.nextScreenCountDown <= 0) {
+            this.nextScreenCountDown = 0;
+            this.clearBrickNames();
+            this.resetScreen();
+            this.resetBallPaddle(c);
+            this.setState(State.game);
+          }
+          break;
         }
       },
 
@@ -946,11 +983,21 @@
 
         var msg = 'Press Enter to begin, arrow keys move';
         c.fillText(msg, C.width / 2, C.height / 2);
-        
+        this.resetShadow(c);
+      },
+
+      showScreenCleared: function (c) {
         c.shadowColor = '#666';
-        c.shadowOffsetX = 0;
-        c.shadowOffsetY = 0;
-        c.shadowBlur = 0;
+        c.shadowOffsetX = 2;
+        c.shadowOffsetY = 2;
+        c.shadowBlur = 10;
+        c.fillStyle = '#fff';
+        c.strokeStyle = '#666';
+        c.textAlign = 'center';
+        c.font = 'bold 48px "Lucida Grande", Helvetica, Arial';
+        c.fillText('Screen Cleared!', C.width / 2, C.height / 2);
+        c.strokeText('Screen Cleared!', C.width / 2, C.height / 2);
+        this.resetShadow(c);
       },
 
       showGameOver: function (c) {
@@ -970,7 +1017,10 @@
         c.fillText('Rank: ' + this.score.getRank(), C.width / 2, C.height / 2 + 100);
         c.strokeText('Score: ' + this.score.score, C.width / 2, C.height / 2 + 50);
         c.strokeText('Rank: ' + this.score.getRank(), C.width / 2, C.height / 2 + 100);
+        this.resetShadow(c);
+      },
 
+      resetShadow: function (c) {
         c.shadowColor = '#666';
         c.shadowOffsetX = 0;
         c.shadowOffsetY = 0;
