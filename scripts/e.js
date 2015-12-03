@@ -22,7 +22,7 @@
     },
 
     font: {
-      nameSprite: '14px Helvetica'
+      nameSprite: '18px "Lucida Grande", Helvetica, Arial'
     },
     
     block: {
@@ -33,6 +33,7 @@
     },
     
     key: {
+      enter: 13,
       up: 38,
       down: 40,
       left: 37,
@@ -48,6 +49,15 @@
     bat: {
       heightOffset: 40
     },
+
+    scoreRanks: [
+      { sc: 100, title: 'CEO' },
+      { sc: 80, title: 'CFO' },
+      { sc: 50, title: 'Vice President, Brickonomics' },
+      { sc: 25, title: 'Principal Powershell Protagonist' },
+      { sc: 10, title: 'Agile Antagonist' },
+      { sc: 0, title: 'Developer' }
+    ],
 
     inBounds: function (x, y) {
       return x >= 0 && x <= this.width && y >= 0 && y <= this.height;
@@ -143,10 +153,14 @@
         return this.bbox;
       },
 
+      getPoints: function () {
+        return (this.name ? 500 : 5);
+      },
+
       collideWith: function (thing) {
         if (this.active) {
           this.active = false;
-          this.world.score.add(this.name ? 500 : 5);
+          this.world.score.add(this.getPoints());
           if (this.name) {
             this.animateNameDrop();
             this.clearSurroundingBlocks(thing);
@@ -219,7 +233,7 @@
 
       render: function (c) {
         c.font = C.font.nameSprite;
-        c.fillColor = 'rgba(30, 80, 150, ' + this.alpha + ')';
+        c.fillColor = 'rgba(30, 80, 150, ' + Math.floor(this.alpha * 255) + ')';
         c.textAlign = 'center';
         c.fillText(this.name, this.x, this.y);
       },
@@ -279,6 +293,7 @@
 
       render: function (c) {
         var bbox = this.getBBox();
+        c.font = '48px Helvetica';
         c.fillStyle = '#111';
         c.fillRect(this.p.x - this.width / 2, this.p.y,
                    this.width, this.height);
@@ -447,11 +462,15 @@
 
       bounceAngle: function (collideAngle) {
         var delta = this.angle - collideAngle;
-        var bounceAngle = Math.round(this.angle + (180 - 2 * delta) + this.bounceFuzz()) % 360;
+        var bounceAngle = Math.round(this.angle + (180 - 2 * delta) + this.bounceFuzz(this.angle)) % 360;
         return bounceAngle;
       },
 
       bounceFuzz: function () {
+        if (Math.abs(this.angle) < 5 || Math.abs(this.angle - 180) < 5) {
+          return R.randRange(-8, 8);
+        }
+        
         return (R.randRange(-4, 4) + R.randRange(-4, 4)) / 2;
       },
 
@@ -620,6 +639,17 @@
         this.score += n;
       },
 
+      getRank: function () {
+        var perc = Math.floor(this.score * 100 / this.world.maxScore);
+        for (var i = 0, length = C.scoreRanks.length; i < length; ++i) {
+          var r = C.scoreRanks[i];
+          if (perc >= r.sc) {
+            return r.title;
+          }
+        }
+        return 'Manatee';
+      },
+
       init: function () {
         this.score = this.displayedScore = initial;
       },
@@ -656,6 +686,7 @@
       keys: [],
 
       score: ScoreTicker(0),
+      maxScore: 0,
 
       grid: ObjectGrid(),
       state: State.pregame,
@@ -693,12 +724,15 @@
 
       setState: function (state) {
         this.state = state;
-        if (state === State.balllost) {
+
+        switch (state) {
+        case State.balllost:
           if (!this.ballReserve.continueAfterLostBall()) {
             this.setState(State.gameover);
           } else {
             this.resetBallPaddle();
           }
+          break;
         }
       },
 
@@ -791,6 +825,16 @@
         }
         this.clearBrickNames();
         this.assignBrickNames();
+
+        this.maxScore = this.calcMaxScore();
+      },
+
+      calcMaxScore: function () {
+        var score = 0;
+        for (var i = 0, length = this.bricks.length; i < length; ++i) {
+          score += this.bricks[i].getPoints();
+        }
+        return score;
       },
 
       onKeyPress: function (e) {
@@ -814,11 +858,13 @@
       },
       
       onKeyDown: function (e) {
-        if (this.state === State.pregame || this.state >= State.balllost) {
-          if (this.state !== State.balllost) {
-            this.reset();
+        if (e.keyCode === C.key.enter || this.state === State.balllost) {
+          if (this.state === State.pregame || this.state >= State.balllost) {
+            if (this.state > State.balllost) {
+              this.reset();
+            }
+            this.setState(State.game);
           }
-          this.setState(this.state === State.gameover ? State.pregame : State.game);
         }
         
         if (this.isMovementKey(e.keyCode)) {
@@ -850,6 +896,61 @@
         for (var i = this.objects.length - 1; i >= 0; --i) {
           this.objects[i].animate(context);
         }
+
+        this.showGameState(context);
+      },
+
+      showGameState: function (c) {
+        switch (this.state) {
+        case State.gameover:
+          this.showGameOver(c);
+          break;
+        case State.pregame:
+          this.showPreGame(c);
+          break;
+        }
+      },
+
+      showPreGame: function (c) {
+        c.shadowColor = '#666';
+        c.shadowOffsetX = 2;
+        c.shadowOffsetY = 2;
+        c.shadowBlur = 1;
+        c.fillStyle = '#fff';
+        c.textAlign = 'center';
+        c.font = 'bold 24px "Lucida Grande", Helvetica, Arial';
+
+        var msg = 'Press Enter to begin, arrow keys move';
+        c.fillText(msg, C.width / 2, C.height / 2);
+        
+        c.shadowColor = '#666';
+        c.shadowOffsetX = 0;
+        c.shadowOffsetY = 0;
+        c.shadowBlur = 0;
+      },
+
+      showGameOver: function (c) {
+        c.shadowColor = '#666';
+        c.shadowOffsetX = 2;
+        c.shadowOffsetY = 2;
+        c.shadowBlur = 10;
+        c.fillStyle = '#fff';
+        c.strokeStyle = '#666';
+        c.textAlign = 'center';
+        c.font = 'bold 48px "Lucida Grande", Helvetica, Arial';
+        c.fillText('Game Over', C.width / 2, C.height / 2);
+        c.strokeText('Game Over', C.width / 2, C.height / 2);
+        
+        c.font = 'bold 36px "Lucida Grande", Helvetica, Arial';
+        c.fillText('Score: ' + this.score.score, C.width / 2, C.height / 2 + 50);
+        c.fillText('Rank: ' + this.score.getRank(), C.width / 2, C.height / 2 + 100);
+        c.strokeText('Score: ' + this.score.score, C.width / 2, C.height / 2 + 50);
+        c.strokeText('Rank: ' + this.score.getRank(), C.width / 2, C.height / 2 + 100);
+
+        c.shadowColor = '#666';
+        c.shadowOffsetX = 0;
+        c.shadowOffsetY = 0;
+        c.shadowBlur = 0;
       },
 
       drawBorder: function (c) {
@@ -873,6 +974,7 @@
 
   function initializeEgg(canvas) {
     var gameState = GameState(canvas);
+    window.world = gameState;
     gameState.init();
     gameState.render();
     gameState.startAnimation();
