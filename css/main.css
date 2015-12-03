@@ -1,17 +1,3 @@
-html, body {
-  padding: 0;
-  margin: 0;
-  background: #eaf8fe;
-}
-
-div {
-  padding: 0;
-  margin: 0;
-}
-
-#ee-root {
-}
-
 #ee-backdrop {
   z-index: 0;
   position: absolute;
@@ -21,9 +7,5 @@ div {
   height: 100%;
   opacity: 0.4;
 
-  background: no-repeat top center/100% url("ea-background.png");
-}
-
-#ee-easter-body {
-  margin-top: 15px;
+  background: no-repeat url("ea-background.png");
 }

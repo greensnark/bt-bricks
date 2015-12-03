@@ -38,6 +38,7 @@
     },
     
     key: {
+      escape: 27,
       enter: 13,
       up: 38,
       down: 40,
@@ -718,9 +719,28 @@
         this.setState(State.pregame);
         this.registerObjects();
         this.reset();
-        document.addEventListener('keypress', this.onKeyPress.bind(this));
-        document.addEventListener('keydown', this.onKeyDown.bind(this));
-        document.addEventListener('keyup', this.onKeyUp.bind(this));
+
+        if (!this.boundListeners) {
+          this.boundListeners = {
+            keypress: this.onKeyPress.bind(this),
+            keydown: this.onKeyDown.bind(this),
+            keyup: this.onKeyUp.bind(this)
+          };
+        }
+
+        for (var event in this.boundListeners) {
+          if (this.boundListeners.hasOwnProperty(event)) {
+            document.addEventListener(event, this.boundListeners[event]);
+          }
+        }
+      },
+
+      destroy: function () {
+        for (var event in this.boundListeners) {
+          if (this.boundListeners.hasOwnProperty(event)) {
+            document.removeEventListener(event, this.boundListeners[event]);
+          }
+        }
       },
 
       addScalp: function (name) {
@@ -906,6 +926,11 @@
       },
       
       onKeyDown: function (e) {
+        if (e.keyCode === C.key.escape) {
+          this.destroy();
+          return;
+        }
+        
         if (this.state === State.screencleared && this.nextScreenCountDown < 200) {
           this.nextScreenCountDown = 0;
         }
@@ -1058,6 +1083,7 @@
 
   function ecanvas(sel) {
     var place = document.querySelector(sel);
+    console.log("Place: " + place);
 
     var backdrop = place.querySelector('div#ee-backdrop');
     if (!backdrop) {
@@ -1140,7 +1166,7 @@
   }
 
   window.btStartEgg = function () {
-    window.btEgg = initializeEgg(ecanvas('#ee-root'));
+    window.btEgg = initializeEgg(ecanvas('#ee-payload'));
   };
 
   window.btStopEgg = function () {
