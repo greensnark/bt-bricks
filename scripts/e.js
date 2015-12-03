@@ -15,6 +15,11 @@
 
     background: '#fff',
 
+    rollCall: {
+      width: 180,
+      height: 600
+    },
+    
     color: {
       boxtone: '#009dec',
       namedBrick: '#32cdfc',
@@ -51,8 +56,8 @@
     },
 
     scoreRanks: [
-      { sc: 100, title: 'CEO' },
-      { sc: 80, title: 'CFO' },
+      { sc: 100, title: 'Chief Executive Officer' },
+      { sc: 80, title: 'Chief Finagling Officer' },
       { sc: 50, title: 'Vice President, Brickonomics' },
       { sc: 25, title: 'Principal Powershell Protagonist' },
       { sc: 10, title: 'Agile Antagonist' },
@@ -162,6 +167,7 @@
           this.active = false;
           this.world.score.add(this.getPoints());
           if (this.name) {
+            this.world.addScalp(this.name);
             this.animateNameDrop();
             this.clearSurroundingBlocks(thing);
           }
@@ -676,6 +682,9 @@
       canvas: dom.canvas,
       scorePane: dom.score,
       statusPane: dom.status,
+      rollCall: dom.rollCall,
+      rollCallTitle: dom.rollCallTitle,
+      names: dom.names,
 
       ball: ball,
       ballReserve: BallReserve(),
@@ -704,6 +713,20 @@
         document.addEventListener('keypress', this.onKeyPress.bind(this));
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
+      },
+
+      addScalp: function (name) {
+        if (!this.names.childNodes.length) {
+          this.rollCallTitle.innerText = '';
+        }
+        var li = document.createElement('li');
+        li.innerText = name;
+        li.setAttribute('style', 'font: 12px "Lucida Grande", Helvetica, Arial; color: #222');
+        this.names.appendChild(li);
+      },
+
+      clearScalps: function () {
+        this.names.innerHTML = '';
       },
 
       addSprite: function (sprite) {
@@ -812,6 +835,7 @@
       },
 
       reset: function () {
+        this.clearScalps();
         this.grid.clear();
         for (var i = 0, length = this.objects.length; i < length; ++i) {
           var obj = this.objects[i];
@@ -991,8 +1015,33 @@
       place.appendChild(container);
     }
     
-    var statusPane, score;
+    var statusPane, score, rollCall, rollCallTitle, names;
     var addHUDElements = function () {
+      rollCall = container.querySelector('div.ee-rollcall');
+      if (!rollCall) {
+        rollCall = document.createElement('div');
+        rollCall.classList.add('ee-rollcall');
+        rollCall.setAttribute('style', 'position: absolute; left: -' + C.rollCall.width + 'px; top: ' + C.statusHeight + 'px; margin: 0; padding: 0');
+        rollCall.setAttribute('height', C.rollCall.height);
+        rollCall.setAttribute('width', C.rollCall.width);
+        container.appendChild(rollCall);
+      }
+
+      rollCallTitle = rollCall.querySelector('h1.ee-title');
+      if (!rollCallTitle) {
+        rollCallTitle = document.createElement('h1');
+        rollCallTitle.classList.add('ee-title');
+        rollCallTitle.setAttribute('style', 'padding: 0; margin: 0; margin-bottom: 0.2em; font: 12px "Lucida Grande", Arial;');
+        rollCall.appendChild(rollCallTitle);
+      }
+
+      names = rollCall.querySelector('ol.names');
+      if (!names) {
+        names = document.createElement('ol');
+        names.classList.add('names');
+        rollCall.appendChild(names);
+      }
+      
       statusPane = container.querySelector('canvas.status');
       if (!statusPane) {
         statusPane = document.createElement('canvas');
@@ -1021,7 +1070,14 @@
       canvas.setAttribute('height', C.height);
       container.appendChild(canvas);
     }
-    return { canvas: canvas, status: statusPane, score: score };
+    return {
+      canvas: canvas,
+      status: statusPane,
+      score: score,
+      rollCall: rollCall,
+      rollCallTitle: rollCallTitle,
+      names: names
+    };
   }
 
   initializeEgg(ecanvas('#easter'));
