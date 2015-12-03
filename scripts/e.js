@@ -10,6 +10,9 @@
     left: 0,
     top: 0,
 
+    statusHeight: 50,
+    gameTop: 0,
+
     background: '#fff',
 
     color: {
@@ -57,7 +60,8 @@
     pregame: 0,
     game: 1,
     outofplay: 2,
-    postgame: 3
+    balllost: 3,
+    gameover: 4
   };
 
   var R = {
@@ -142,6 +146,7 @@
       collideWith: function (thing) {
         if (this.active) {
           this.active = false;
+          this.world.score.add(this.name ? 500 : 5);
           if (this.name) {
             this.animateNameDrop();
             this.clearSurroundingBlocks(thing);
@@ -352,6 +357,7 @@
       animate: function (c) {
         switch (this.world.state) {
         case State.pregame:
+        case State.balllost:
           this.show(c, this.p);
           break;
         case State.game:
@@ -379,7 +385,6 @@
       },
 
       endGame: function () {
-        console.error("Game over");
         this.world.setState(State.outofplay);
       },
 
@@ -393,7 +398,7 @@
           this.flashCounter = 0;
           if (++this.flashTimes >= this.maxFlashCount) {
             this.flashTimes = 0;
-            this.world.setState(State.postgame);
+            this.world.setState(State.balllost);
           }
         }
         this.flashAlpha += this.flashDirection * (1.0 / this.maxFlashCount);
@@ -564,17 +569,93 @@
     };
   }
 
-  function GameState(canvas) {
+  var BallReserve = function () {
+    var ballCount = 2;
+    return {
+      reserve: ballCount,
+      ball: Ball(),
+      
+      dirty: true,
+
+      init: function () {
+        this.reserve = ballCount;
+        this.dirty = true;
+      },
+
+      alive: function () {
+        return this.reserve >= 0;
+      },
+
+      continueAfterLostBall: function () {
+        this.dirty = true;
+        return --this.reserve >= 0;
+      },
+      
+      render: function () {
+        if (!this.dirty) {
+          return;
+        }
+        var c = this.world.statusPane.getContext('2d');
+        c.clearRect(0, 0, C.width / 2, C.statusHeight);
+        for (var i = 0; i < this.reserve; ++i) {
+          this.ball.p.x = i * (this.ball.radius * 2 + 5) + this.ball.radius + 5;
+          this.ball.p.y = Math.floor(C.statusHeight / 2);
+          this.ball.render(c);
+        }
+        this.dirty = false;
+      },
+
+      animate: function () {
+        this.render();
+      }
+    };
+  };
+
+  var ScoreTicker = function (initial) {
+    return {
+      score: initial,
+      displayedScore: initial,
+
+      add: function (n) {
+        this.score += n;
+      },
+
+      init: function () {
+        this.score = this.displayedScore = initial;
+      },
+      
+      render: function (c) {
+        this.world.scorePane.innerText = this.displayedScore;
+      },
+      
+      animate: function (c) {
+        if (this.displayedScore < this.score) {
+          var gap = this.score - this.displayedScore;
+          var step = (gap > 200) ? 100 :
+              (gap > 50) ? 10 : 5;
+          this.displayedScore += Math.min(this.score - this.displayedScore, step);
+        }
+        this.render(c);
+      }
+    };
+  };
+
+  function GameState(dom) {
     var ball = Ball();
     var state = {
-      canvas: canvas,
+      canvas: dom.canvas,
+      scorePane: dom.score,
+      statusPane: dom.status,
 
       ball: ball,
+      ballReserve: BallReserve(),
       paddle: Paddle(),
       bricks: [],
       
       objects: [],
       keys: [],
+
+      score: ScoreTicker(0),
 
       grid: ObjectGrid(),
       state: State.pregame,
@@ -612,6 +693,13 @@
 
       setState: function (state) {
         this.state = state;
+        if (state === State.balllost) {
+          if (!this.ballReserve.continueAfterLostBall()) {
+            this.setState(State.gameover);
+          } else {
+            this.resetBallPaddle();
+          }
+        }
       },
 
       collidesAtPoint: function (actor, x, y) {
@@ -637,7 +725,7 @@
 
       inWall: function (x, y) {
         // Wall check:
-        return (x <= 0 || x >= C.width || y <= 0 || y >= C.height);
+        return (x <= 0 || x >= C.width || y <= C.gameTop || y >= C.height);
       },
 
       // registers objects in the objects array, and adds them to the collision
@@ -645,7 +733,7 @@
       registerObjects: function () {
         for (var i = 0, length = brickPositions.length; i < length; ++i) {
           var p = brickPositions[i];
-          this.bricks.push(Brick(p.x + C.block.offsetX, p.y));
+          this.bricks.push(Brick(p.x + C.block.offsetX, p.y + C.gameTop));
         }
         
         for (i = 0, length = this.bricks.length; i < length; ++i) {
@@ -654,6 +742,8 @@
         
         this.objects.push(this.ball);
         this.objects.push(this.paddle);
+        this.objects.push(this.score);
+        this.objects.push(this.ballReserve);
       },
 
       clearBrickNames: function () {
@@ -679,6 +769,12 @@
         for (i = 0, length = namedBricks.length; i < length; ++i) {
           nextBrick().setName(namedBricks[i]);
         }
+      },
+
+      resetBallPaddle: function () {
+        this.paddle.init();
+        this.ball.init();
+        this.render();
       },
 
       reset: function () {
@@ -718,9 +814,11 @@
       },
       
       onKeyDown: function (e) {
-        if (this.state === State.pregame || this.state === State.postgame) {
-          this.reset();
-          this.setState(this.state === State.postgame ? State.pregame : State.game);
+        if (this.state === State.pregame || this.state >= State.balllost) {
+          if (this.state !== State.balllost) {
+            this.reset();
+          }
+          this.setState(this.state === State.gameover ? State.pregame : State.game);
         }
         
         if (this.isMovementKey(e.keyCode)) {
@@ -737,7 +835,7 @@
       setPaused: function (paused) {
         this.paused = paused;
       },
-
+ 
       render: function () {
         var context = this.canvas.getContext('2d');
         for (var i = 0, length = this.objects; i < length; ++i) {
@@ -747,10 +845,16 @@
 
       animate: function () {
         var context = this.canvas.getContext('2d');
-        context.clearRect(0, 0, C.width, C.height);
+        context.clearRect(0, C.gameTop - 1, C.width, C.height);
+        this.drawBorder(context);
         for (var i = this.objects.length - 1; i >= 0; --i) {
           this.objects[i].animate(context);
         }
+      },
+
+      drawBorder: function (c) {
+        c.strokeStyle = '#aaa';
+        c.strokeRect(0, C.gameTop + 0.5, C.width, C.height - C.gameTop - 0.5);
       },
 
       tick: function () {
@@ -775,15 +879,47 @@
   }
 
   function ecanvas(sel) {
-    var container = document.querySelector(sel);
-    var canvas = document.querySelector('canvas');
+    var place = document.querySelector(sel);
+
+    var container = place.querySelector('div.ee-layout');
+    if (!container) {
+      container = document.createElement('div');
+      container.classList.add('ee-layout');
+      container.setAttribute('style', 'position: relative; z-index: 5; display: block; margin: 15px auto; width: ' + C.width + 'px; height: ' + (C.height + C.statusHeight) + 'px');
+      place.appendChild(container);
+    }
+    
+    var statusPane, score;
+    var addHUDElements = function () {
+      statusPane = container.querySelector('canvas.status');
+      if (!statusPane) {
+        statusPane = document.createElement('canvas');
+        statusPane.classList.add('status');
+        statusPane.setAttribute('style', 'position: absolute; left: 0; top: 0; margin: 0; padding: 0');
+        statusPane.setAttribute('width', Math.floor(C.width / 2));
+        statusPane.setAttribute('height', C.statusHeight);
+        container.appendChild(statusPane);
+      }
+      
+      score = container.querySelector('div.game-score');
+      if (!score) {
+        score = document.createElement('div');
+        score.classList.add('game-score');
+        score.setAttribute('style', 'position: absolute; right: 0px; top: 0; padding-right: 5px; font: 48px "Lucida Sans Typewriter"; font-weight: bold; color: #777');
+        container.appendChild(score);
+      }
+    };
+    addHUDElements();
+    var canvas = container.querySelector('canvas.main');
     if (!canvas) {
       canvas = document.createElement('canvas');
+      canvas.setAttribute('style', 'position: relative; top: ' + C.statusHeight + 'px');
+      canvas.classList.add('main');
       canvas.setAttribute('width', C.width);
       canvas.setAttribute('height', C.height);
       container.appendChild(canvas);
     }
-    return canvas;
+    return { canvas: canvas, status: statusPane, score: score };
   }
 
   initializeEgg(ecanvas('#easter'));
