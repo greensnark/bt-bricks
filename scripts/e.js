@@ -56,7 +56,7 @@
     },
 
     scoreRanks: [
-      { sc: 125, title: 'Grand Moff' },
+      { sc: 150, title: 'Grand Moff' },
       { sc: 100, title: 'Chief Executive Officer' },
       { sc: 80, title: 'Chief Finagling Officer' },
       { sc: 50, title: 'Vice President, Brickonomics' },
@@ -143,7 +143,6 @@
       needRemove: false,
 
       init: function () {
-        this.clearName();
         this.active = true;
         this.needRemove = false;
       },
@@ -816,12 +815,14 @@
       },
 
       clearBrickNames: function () {
+        console.log("Clearing brick names");
         for (var i = 0, length = this.bricks.length; i < length; ++i) {
           this.bricks[i].clearName();
         }
       },
 
       assignBrickNames: function () {
+        console.log("Assigning names");
         var availableIndexes = [];
         for (var i = 0, length = this.bricks.length; i < length; ++i) {
           availableIndexes.push(i);
@@ -836,6 +837,7 @@
         };
 
         for (i = 0, length = namedBricks.length; i < length; ++i) {
+          console.log("Setting name to " + namedBricks[i]);
           nextBrick().setName(namedBricks[i]);
         }
       },
