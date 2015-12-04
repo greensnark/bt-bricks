@@ -115,8 +115,8 @@
         "Dinesh Bhat", "Edna Malloy", "Galit Miller", "George Anderson", "Georgiy Frolov",
         "Greg Delaney", "Greg Persch", "Gregg Ginsberg", "Himanshu Kesar", "Howie Rappaport",
         "Janice Gluck", "Jennifer Cicik", "Jill Samuel", "Jim Farrow", "Jim Jarrett", "Jim Jordan",
-        "Jon Edmunds", "Kenn Louis", "Ki Jones", "Liz Shannon", "Mark Donovan", "Matt Covington",
-        "Matt Nehrbass", "Matt Smith", "Maureen DeLong", "Mike Gaffney", "Mike Lott",
+        "Jon Edmunds", "Kenn Louis", "Ki Jones", "Liz Crooks", "Liz Shannon", "Mark Donovan",
+        "Matt Covington", "Matt Nehrbass", "Matt Smith", "Maureen DeLong", "Mike Gaffney", "Mike Lott",
         "Mike Ramsay", "Missy Mack", "Mitch Berk", "Nat Medija", "Nicole Dunn", "Pat Pulliam",
         "Peter Kim", "Prayank Sharma", "Ruchika Yadav", "Rusty Fiste", "Shi-Yue Qiu",
         "Sameet Nasnodkar", "Samir Agte", "Shweta Harisinghani", "Sigurd Knippenberg", "Sinclair Bain",
@@ -1093,9 +1093,7 @@
           this.showScreenCleared(c);
           if (--this.nextScreenCountDown <= 0) {
             this.nextScreenCountDown = 0;
-            this.clearBrickNames();
-            this.resetScreen();
-            this.resetBallPaddle(c);
+            this.reset();
             this.setState(State.game);
           }
           break;
@@ -1126,8 +1124,9 @@
         c.strokeStyle = '#666';
         c.textAlign = 'center';
         c.font = 'bold 48px "Lucida Grande", Helvetica, Arial';
-        c.fillText('Screen Cleared!', C.width / 2, C.height / 2);
-        c.strokeText('Screen Cleared!', C.width / 2, C.height / 2);
+        var msg = 'Screen Cleared!';
+        c.fillText(msg, C.width / 2, C.height / 2);
+        c.strokeText(msg, C.width / 2, C.height / 2);
         this.resetShadow(c);
       },
 
