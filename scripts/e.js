@@ -21,8 +21,10 @@
     },
     
     color: {
+      ball: '#e32d20',
       boxtone: '#009dec',
       namedBrick: '#32cdfc',
+      dyingBrick: '#fccd32',
       namedBrickOutline: '#22e'
     },
 
@@ -109,8 +111,8 @@
       [
         "Alan Snyder", "Alvin Guingab", "Anna Yap", "Annu Singh", "Anthony DeStefano",
         "Arianne Weston", "Ashwath Akirekadu", "Ashwin Eapen", "Bill Mollock",
-        "Brian Scheffey", "Darshan Shaligram", "Daniel Cook", "Deepti Paranjape", "Dinesh Bhat",
-        "Edna Malloy", "Galit Miller", "George Anderson", "Georgiy Frolov",
+        "Brian Murphy", "Brian Scheffey", "Darshan Shaligram", "Daniel Cook", "Deepti Paranjape",
+        "Dinesh Bhat", "Edna Malloy", "Galit Miller", "George Anderson", "Georgiy Frolov",
         "Greg Delaney", "Greg Persch", "Gregg Ginsberg", "Himanshu Kesar", "Howie Rappaport",
         "Janice Gluck", "Jennifer Cicik", "Jill Samuel", "Jim Farrow", "Jim Jarrett", "Jim Jordan",
         "Jon Edmunds", "Kenn Louis", "Ki Jones", "Liz Shannon", "Mark Donovan", "Matt Covington",
@@ -170,7 +172,14 @@
     };
   };
 
+  var BrickState = {
+    active: 1,
+    dying: 2,
+    dead: 3
+  };
+
   var Brick = function (x, y) {
+    var deathCycles = 32;
     return {
       type: 'block',
       collisionTarget: true,
@@ -187,12 +196,14 @@
         y2: y + C.block.height - 1
       },
 
-      active: true,
+      state: BrickState.active,
       needRemove: false,
+      deathCountdown: 0,
 
       init: function () {
-        this.active = true;
+        this.state = BrickState.active;
         this.needRemove = false;
+        this.deathCountdown = 0;
       },
 
       setName: function (name) {
@@ -212,17 +223,27 @@
       },
 
       collideWith: function (thing) {
-        if (this.active) {
-          this.active = false;
-          this.world.destroyedBrick();
-          this.world.score.add(this.getPoints());
+        if (this.state === BrickState.active) {
           if (this.name) {
-            this.world.addScalp(this.name);
-            this.animateNameDrop();
-            this.clearSurroundingBlocks(thing);
+            // Named bricks go through death throes:
+            this.state = BrickState.dying;
+            this.deathCountdown = deathCycles;
+          } else {
+            this.destroy();
           }
         }
+      },
+
+      destroy: function () {
+        this.state = BrickState.dead;
         this.needRemove = true;
+        this.world.destroyedBrick();
+        this.world.score.add(this.getPoints());
+        if (this.name) {
+          this.world.addScalp(this.name);
+          this.animateNameDrop();
+          this.clearSurroundingBlocks(this);
+        }
       },
 
       // Animate the name falling away and fading.
@@ -260,19 +281,35 @@
       },
       
       render: function (c) {
-        if (!this.active) {
+        if (this.state === BrickState.dead) {
           if (this.needRemove) {
             this.world.grid.remove(this);
             this.needRemove = false;
           }
           return;
         }
-        c.fillStyle = this.name? C.color.namedBrick : C.color.boxtone;
+        
+        c.fillStyle = this.fillColor();
         c.fillRect(this.bbox.x1, this.bbox.y1, C.block.width, C.block.height);
+      },
+
+      fillColor: function () {
+        switch (this.state) {
+        case BrickState.active:
+          return this.name? C.color.namedBrick : C.color.boxtone;
+        case BrickState.dying:
+          var flash = ((this.deathCountdown >> 3) & 1) === 0;
+          return flash? C.color.dyingBrick : C.color.namedBrick;
+        default:
+          return C.color.dyingBrick;
+        }
       },
 
       animate: function (c) {
         this.render(c);
+        if (this.state === BrickState.dying && --this.deathCountdown <= 0) {
+          this.destroy();
+        }
       }
     };
   };
@@ -412,7 +449,7 @@
       },
       
       show: function (c, p, color) {
-        c.fillStyle = color || 'rgba(255, 0, 0, 1)';
+        c.fillStyle = color || C.color.ball;
         c.beginPath();
         c.arc(p.x, p.y, this.radius, 0, 2 * Math.PI, true);
         c.fill();
@@ -1166,7 +1203,6 @@
 
   function ecanvas(sel) {
     var place = document.querySelector(sel);
-    console.log("Place: " + place);
 
     var backdrop = place.querySelector('div#ee-backdrop');
     if (!backdrop) {
