@@ -93,11 +93,11 @@
     }
   };
 
-  var namedBricks = ["Ashwath Akirekadu", "Anthony DeStefano", "Ashwin Eapen",
-                     "Ariane Weston", "Brian Scheffey", "Dinesh Bhat",
+  var namedBricks = ["Ashwath Akirekadu", "Anthony DeStefano", "Annu Singh",
+                     "Ashwin Eapen", "Arianne Weston", "Brian Scheffey", "Dinesh Bhat",
                      "Darshan Shaligram", "Edna Malloy", "George Anderson",
                      "Gregg Ginsberg", "Galit Miller", "Himanshu Kesar",
-                     "Jim farrow", "Janice Gluck", "Jim Jarrett", "Jim Jordan",
+                     "Jim Farrow", "Janice Gluck", "Jim Jarrett", "Jim Jordan",
                      "Kenn Louis", "Mitch Berk", "Matt Covington", "Mark Donovan",
                      "Mike Gaffney", "Missy Mack", "Matt Nehrbass", "Mike Ramsay",
                      "Matt Smith", "Prayank Sharma", "Rusty Fiste", "Sinclair Bain",
