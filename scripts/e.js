@@ -1016,7 +1016,7 @@
         c.shadowColor = '#999';
         c.shadowOffsetX = 2;
         c.shadowOffsetY = 2;
-        c.shadowBlur = 10;
+        c.shadowBlur = 4;
         c.fillStyle = '#fff';
         c.textAlign = 'center';
         c.font = 'bold 36px "Lucida Grande", Helvetica, Arial';
@@ -1031,7 +1031,7 @@
         c.shadowColor = '#999';
         c.shadowOffsetX = 2;
         c.shadowOffsetY = 2;
-        c.shadowBlur = 10;
+        c.shadowBlur = 4;
         c.fillStyle = '#fff';
         c.strokeStyle = '#666';
         c.textAlign = 'center';
@@ -1045,7 +1045,7 @@
         c.shadowColor = '#999';
         c.shadowOffsetX = 2;
         c.shadowOffsetY = 2;
-        c.shadowBlur = 10;
+        c.shadowBlur = 4;
         c.fillStyle = '#fff';
         c.strokeStyle = '#666';
         c.textAlign = 'center';
