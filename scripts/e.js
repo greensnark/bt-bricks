@@ -134,8 +134,62 @@
     }
   };
 
+  var Bounds = function () {
+    var sentinel = -1000;
+    return {
+      x1: 0, y1: 0, x2: 0, y2: 0,
+
+      isValid: function () {
+        return !(this.x1 === sentinel || this.y1 === sentinel || this.x2 === sentinel || this.y2 === sentinel);
+      },
+
+      assign: function (other) {
+        this.x1 = other.x1;
+        this.x2 = other.x2;
+        this.y1 = other.y1;
+        this.y2 = other.y2;
+      },
+        
+      dirtyBBox: function (oldBB, newBB) {
+        this.x1 = Math.min(oldBB.x1, newBB.x1);
+        this.x2 = Math.max(oldBB.x2, newBB.x2);
+        this.y1 = Math.min(oldBB.y1, newBB.y1);
+        this.y2 = Math.min(oldBB.y2, newBB.y2);
+      },
+      
+      reset: function () {
+        this.x1 = this.y1 = this.x2 = this.y2 = sentinel;
+      },
+
+      expand: function (nx1, ny1, nx2, ny2) {
+        if (nx1 < this.x1) {
+          this.x1 = nx1;
+        }
+        if (ny1 < this.y1) {
+          this.y1 = ny1;
+        }
+        if (nx2 > this.x2) {
+          this.x2 = nx2;
+        }
+        if (ny2 > this.y2) {
+          this.y2 = ny2;
+        }
+      }
+    };
+  };
+
+  var Sprite = function () {
+    var id = 0;
+    return {
+      nextId: function () {
+        return ++id;
+      }
+    };
+  }();
+
   var Brick = function (x, y) {
     return {
+      id: Sprite.nextId(),
       type: 'block',
       collisionTarget: true,
       p: M.pos(x, y),
@@ -161,10 +215,16 @@
 
       setName: function (name) {
         this.name = name;
+        this.setFillStyle();
       },
 
       clearName: function () {
         this.name = undefined;
+        this.setFillStyle();
+      },
+
+      setFillStyle: function () {
+        this.fillStyle = (this.name? C.color.namedBrick : C.color.boxtone);
       },
 
       getBBox: function () {
@@ -231,18 +291,23 @@
           }
           return;
         }
-        c.fillStyle = this.name? C.color.namedBrick : C.color.boxtone;
+        c.fillStyle = this.fillStyle;
         c.fillRect(this.bbox.x1, this.bbox.y1, C.block.width, C.block.height);
       },
 
       animate: function (c) {
-        this.render(c);
+        if (this.needRemove) {
+          return this.bbox;
+        }
+        return undefined;
       }
     };
   };
 
   var NameSprite = function (name, x, y) {
     return {
+      id: Sprite.nextId(),
+      type: 'name',
       name: name,
       x: x,
       y: y,
@@ -251,15 +316,36 @@
       acceleration: 0.05,
       alpha: 1,
 
+      textBBox: { width: 0, height: 0 },
+      dirtyBounds: Bounds(),
+
       render: function (c) {
+        this.setStyle(c);
+        c.fillText(this.name, this.x, this.y);
+      },
+
+      setStyle: function (c) {
         c.font = C.font.nameSprite;
         var fillColor = 'rgba(30, 80, 150, ' + this.alpha + ')';
         c.fillColor = fillColor;
         c.textAlign = 'center';
-        c.fillText(this.name, this.x, this.y);
+      },
+
+      measureText: function (c) {
+        this.setStyle(c);
+        var m = c.measureText(this.name);
+        this.textBBox.width = (m.actualBoundingBoxLeft + m.actualBoundingBoxRight) / 2 + 5;
+        this.textBBox.height = (m.actualBoundingBoxAscent + m.actualBoundingBoxDescent) + 3;
       },
 
       animate: function (c) {
+        if (!this.textBBox.width) {
+          this.measureText(c);
+        }
+        this.dirtyBounds.reset();
+        this.dirtyBounds.x1 = this.x - this.textBBox.width;
+        this.dirtyBounds.y1 = this.y - this.textBBox.height;
+        
         this.y += this.velocity;
         this.velocity += this.acceleration;
         if (this.velocity > this.maxVelocity) {
@@ -269,17 +355,20 @@
         if (this.alpha < 0) {
           this.alpha = 0;
         }
-        this.render(c);
+        this.dirtyBounds.x2 = this.dirtyBounds.x1 + this.textBBox.width * 2;
+        this.dirtyBounds.y2 = this.dirtyBounds.y1 + this.textBBox.height * 2;
 
         if (this.alpha <= 0 || this.y >= C.height) {
           this.world.removeSprite(this);
         }
+        return this.dirtyBounds;
       }
     };
   };
 
   var Paddle = function () {
     return {
+      id: Sprite.nextId(),
       type: 'paddle',
       collisionTarget: true,
       p: M.pos(0, 0),
@@ -288,12 +377,9 @@
 
       move: 12,
       
-      bbox: {
-        x1: 0,
-        y1: 0,
-        x2: 0,
-        y2: 0
-      },
+      bbox: Bounds(),
+      oldBBox: Bounds(),
+      dirtyBounds: Bounds(),
 
       init: function () {
         this.p = M.pos(Math.floor(C.width / 2) - 0.5, C.height - C.bat.heightOffset);
@@ -321,16 +407,17 @@
       },
 
       animate: function (c) {
-        this.applyMovement();
-        this.render(c);
+        return this.applyMovement();
       },
 
       applyMovement: function () {
         if (this.world.state !== State.game) {
-          return;
+          return null;
         }
+
+        this.dirtyBounds.reset();
         var world = this.world;
-        var oldBBox = this.getBBox();
+        this.oldBBox.assign(this.getBBox());
         var didMove = false;
         if (world.keys[C.key.left]) {
           this.p.x -= this.move;
@@ -350,15 +437,18 @@
         if (didMove) {
           var bbox = this.getBBox();
           var grid = this.world.grid;
-          grid.remove(this, oldBBox);
+          grid.remove(this, this.oldBBox);
           grid.add(this);
+          this.dirtyBounds.dirtyBBox(this.oldBBox, bbox);
         }
+        return (this.dirtyBounds.isValid())? this.dirtyBounds : null;
       }
     };
   };
 
   var Ball = function (radius) {
     return {
+      id: Sprite.nextId(),
       type: 'ball',
       radius: radius || C.ball.radius,
       p: M.pos(0, 0),
@@ -374,6 +464,8 @@
       flashTimes: 0,
       maxFlashCount: 9,
 
+      dirtyBounds: Bounds(),
+
       init: function () {
         this.p = M.pos(C.width / 2, C.height - C.ball.startHeightOffset);
         this.angle = R.randRange(225, 315);
@@ -387,37 +479,69 @@
       },
 
       render: function (c) {
-        this.show(c, this.p);
+        if (this.world && this.world.state === State.outofplay) {
+          this.flash(c);
+        } else {
+          this.show(c, this.p);
+        }
       },
 
       animate: function (c) {
         switch (this.world.state) {
-        case State.pregame:
-        case State.balllost:
-          this.show(c, this.p);
-          break;
         case State.game:
-          this.move(c);
-          break;
-        case State.outofplay:
-          this.flash(c);
-          break;
-        default:
+          return this.move(c);
           break;
         }
       },
 
+      initDirtyBounds: function () {
+        var d = this.dirtyBounds;
+        d.x1 = this.p.x;
+        d.x2 = this.p.x;
+        d.y1 = this.p.y;
+        d.y2 = this.p.y;
+      },
+
+      expandDirtyBounds: function () {
+        var p = this.p;
+        var d = this.dirtyBounds;
+        if (p.x < d.x1) {
+          d.x1 = p.x;
+        }
+        if (p.x > d.x2) {
+          d.x2 = p.x;
+        }
+        if (p.y < d.y1) {
+          d.y1 = p.y;
+        }
+        if (p.y > d.y2) {
+          d.y2 = p.y;
+        }
+      },
+
+      finalizeDirtyBounds: function () {
+        var d = this.dirtyBounds;
+        var rad = this.radius + 2;
+        d.x1 -= rad;
+        d.x2 += rad;
+        d.y1 -= rad;
+        d.y2 += rad;
+        return d;
+      },
+
       move: function (c) {
+        this.initDirtyBounds();
         for (var i = 0; i < this.speed; i += this.increment) {
           this.p.addPolar(this.increment, this.angle);
           this.collide(c);
+          this.expandDirtyBounds();
 
           if (this.isOutOfBounds()) {
             this.endGame();
             break;
           }
         }
-        this.show(c, this.p);
+        return this.finalizeDirtyBounds();
       },
 
       endGame: function () {
@@ -529,6 +653,70 @@
     return {
       cells: emptyCells(),
 
+      dirtyCells: [],
+      seenDirtyCells: [],
+      nDirtyCells: 0,
+
+      clearDirty: function () {
+        this.nDirtyCells = 0;
+        this.seenDirtyCells.splice(0, this.seenDirtyCells.length);
+      },
+
+      dirtyBBox: function (bbox) {
+        var y1 = this.gridIndex(bbox.y1),
+            y2 = this.gridIndex(bbox.y2),
+            x1 = this.gridIndex(bbox.x1),
+            x2 = this.gridIndex(bbox.x2);
+
+        var pos = y1 * ncols;
+        for (var y = y1; y <= y2; ++y) {
+          for (var x = x1; x <= x2; ++x) {
+            if (x < 0 || x >= ncols || y < 0 || y >= nrows) {
+              continue;
+            }
+            var dirtyOffset = pos + x;
+            if (!this.seenDirtyCells[dirtyOffset]) {
+              this.seenDirtyCells[dirtyOffset] = true;
+              this.registerDirtyCell(x, y);
+            }
+          }
+          pos += ncols;
+        }
+      },
+
+      registerDirtyCell: function (x, y) {
+        var obj = this.dirtyCells[this.nDirtyCells];
+        if (!obj) {
+          this.dirtyCells[this.nDirtyCells] = obj = { x: x, y: y };
+        } else {
+          obj.x = x;
+          obj.y = y;
+        }
+        ++this.nDirtyCells;
+      },
+
+      redrawDirty: function (c) {
+        for (var i = 0, length = this.nDirtyCells; i < length; ++i) {
+          var cell = this.dirtyCells[i];
+          this.clearCell(c, cell.x, cell.y);
+        }
+        for (var i = 0, length = this.nDirtyCells; i < length; ++i) {
+          var cell = this.dirtyCells[i];
+          this.redrawCellSprites(c, this.cells[cell.y][cell.x]);
+        }
+      },
+
+      redrawCellSprites: function (c, cellSprites) {
+        for (var i = cellSprites.length - 1; i >= 0; --i) {
+          cellSprites[i].render(c);
+        }
+      },
+
+      clearCell: function (c, x, y) {
+        c.clearRect(x * C.gridSize, y * C.gridSize,
+                    C.gridSize, C.gridSize);
+      },
+      
       clear: function () {
         this.cells = emptyCells();
       },
@@ -614,6 +802,7 @@
     return {
       reserve: ballCount,
       ball: Ball(),
+      alwaysDraw: true,
       
       dirty: true,
 
@@ -655,6 +844,7 @@
     return {
       score: initial,
       displayedScore: initial,
+      alwaysDraw: true,
 
       add: function (n) {
         this.score += n;
@@ -723,7 +913,8 @@
       wall: {
         type: 'wall'
       },
-      
+
+      redraw: true,
       paused: false,
 
       init: function () {
@@ -789,6 +980,7 @@
 
       setState: function (state) {
         this.state = state;
+        this.redraw = true;
 
         switch (state) {
         case State.balllost:
@@ -834,19 +1026,25 @@
       // registers objects in the objects array, and adds them to the collision
       // grid.
       registerObjects: function () {
+        this.bricks = [];
         for (var i = 0, length = brickPositions.length; i < length; ++i) {
           var p = brickPositions[i];
           this.bricks.push(Brick(p.x + C.block.offsetX, p.y + C.gameTop));
         }
         
         for (i = 0, length = this.bricks.length; i < length; ++i) {
-          this.objects.push(this.bricks[i]);
+          this.registerObject(this.bricks[i]);
         }
         
-        this.objects.push(this.ball);
-        this.objects.push(this.paddle);
-        this.objects.push(this.score);
-        this.objects.push(this.ballReserve);
+        this.registerObject(this.ball);
+        this.registerObject(this.paddle);
+        this.registerObject(this.score);
+        this.registerObject(this.ballReserve);
+      },
+      
+      registerObject: function (obj) {
+        obj.world = this;
+        this.objects.push(obj);
       },
 
       clearBrickNames: function () {
@@ -896,6 +1094,7 @@
       },
 
       resetScreen: function (newgame) {
+        this.redraw = true;
         this.destroyedBricks = 0;
         this.grid.clear();
         for (var i = 0, length = this.objects.length; i < length; ++i) {
@@ -975,20 +1174,65 @@
  
       render: function (c) {
         var context = c || this.canvas.getContext('2d');
-        for (var i = 0, length = this.objects; i < length; ++i) {
+        for (var i = 0, length = this.objects.length; i < length; ++i) {
           this.objects[i].render(context);
         }
       },
 
+      dirtyList: [],
+      ndirty: 0,
+
+      isFullRedraw: function () {
+        return this.redraw || this.state !== State.game;
+      },
+     
       animate: function () {
         var context = this.canvas.getContext('2d');
-        context.clearRect(0, C.gameTop - 1, C.width, C.height);
-        this.drawBorder(context);
+        if (this.isFullRedraw()) {
+          context.clearRect(0, C.gameTop - 1, C.width, C.height);
+        }
+        this.ndirty = 0;
         for (var i = this.objects.length - 1; i >= 0; --i) {
-          this.objects[i].animate(context);
+          var obj = this.objects[i];
+          var dirty = obj.animate(context);
+          if (dirty) {
+            this.registerDirty(this.ndirty++, dirty, obj);
+          }
         }
 
+        this.redrawDirty(context);
         this.showGameState(context);
+        this.drawBorder(context);
+        
+        this.redraw = false;
+      },
+
+      // redrawDirty draws the ball and all sprites that are in dirtied zones.
+      redrawDirty: function (c) {
+        if (this.isFullRedraw()) {
+          this.render(c);
+          return;
+        }
+
+        var seenObjs = {};
+        this.grid.clearDirty();
+        for (var i = 0, length = this.ndirty; i < length; ++i) {
+          var dirty = this.dirtyList[i];
+          var d = dirty.dirty;
+          this.grid.dirtyBBox(dirty.dirty);
+        }
+        this.grid.redrawDirty(c);
+        this.ball.render(c);
+      },
+
+      registerDirty: function (ndirty, dirty, obj) {
+        var dirtyObj = this.dirtyList[ndirty];
+        if (!dirtyObj) {
+          this.dirtyList[ndirty] = dirtyObj = { dirty: dirty, obj: obj };
+        } else {
+          dirtyObj.dirty = dirty;
+          dirtyObj.obj = obj;
+        }
       },
 
       showGameState: function (c) {
@@ -1098,8 +1342,6 @@
 
   function ecanvas(sel) {
     var place = document.querySelector(sel);
-    console.log("Place: " + place);
-
     var backdrop = place.querySelector('div#ee-backdrop');
     if (!backdrop) {
       backdrop = document.createElement('div');
