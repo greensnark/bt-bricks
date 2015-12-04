@@ -64,7 +64,7 @@
       { sc: 50, title: 'Vice President, Brickonomics' },
       { sc: 25, title: 'Principal Powershell Protagonist' },
       { sc: 10, title: 'Agile Antagonist' },
-      { sc: 0, title: 'Developer' }
+      { sc: 0, title: 'Use the arrow keys, Luke' }
     ],
 
     inBounds: function (x, y) {
