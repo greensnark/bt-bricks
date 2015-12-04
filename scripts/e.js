@@ -265,7 +265,7 @@
         if (this.velocity > this.maxVelocity) {
           this.velocity = this.maxVelocity;
         }
-        this.alpha -= 0.02;
+        this.alpha -= 0.002;
         if (this.alpha < 0) {
           this.alpha = 0;
         }
