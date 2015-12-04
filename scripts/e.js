@@ -1013,7 +1013,7 @@
       },
 
       showPreGame: function (c) {
-        c.shadowColor = '#666';
+        c.shadowColor = '#999';
         c.shadowOffsetX = 2;
         c.shadowOffsetY = 2;
         c.shadowBlur = 10;
@@ -1028,7 +1028,7 @@
       },
 
       showScreenCleared: function (c) {
-        c.shadowColor = '#666';
+        c.shadowColor = '#999';
         c.shadowOffsetX = 2;
         c.shadowOffsetY = 2;
         c.shadowBlur = 10;
@@ -1042,7 +1042,7 @@
       },
 
       showGameOver: function (c) {
-        c.shadowColor = '#666';
+        c.shadowColor = '#999';
         c.shadowOffsetX = 2;
         c.shadowOffsetY = 2;
         c.shadowBlur = 10;
@@ -1062,7 +1062,7 @@
       },
 
       resetShadow: function (c) {
-        c.shadowColor = '#666';
+        c.shadowColor = '#999';
         c.shadowOffsetX = 0;
         c.shadowOffsetY = 0;
         c.shadowBlur = 0;
