@@ -700,9 +700,11 @@
       
       dirty: true,
 
-      init: function () {
-        this.reserve = ballCount;
-        this.dirty = true;
+      init: function (newgame) {
+        if (newgame) {
+          this.reserve = ballCount;
+          this.dirty = true;
+        }
       },
 
       alive: function () {
