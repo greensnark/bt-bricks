@@ -208,6 +208,10 @@
         this.deathCountdown = 0;
       },
 
+      isAlive: function () {
+        return this.state === BrickState.active;
+      },
+
       setName: function (name) {
         this.name = name;
       },
@@ -224,12 +228,16 @@
         return (this.name ? 500 : 5);
       },
 
+      startDying: function () {
+        this.state = BrickState.dying;
+        this.deathCountdown = deathCycles;
+      },
+
       collideWith: function (thing) {
         if (this.state === BrickState.active) {
           if (this.name) {
             // Named bricks go through death throes:
-            this.state = BrickState.dying;
-            this.deathCountdown = deathCycles;
+            this.startDying();
           } else {
             this.destroy();
           }
@@ -239,7 +247,7 @@
       destroy: function () {
         this.state = BrickState.dead;
         this.needRemove = true;
-        this.world.destroyedBrick();
+        this.world.destroyedBrick(this);
         this.world.score.add(this.getPoints());
         if (this.name) {
           this.world.addScalp(this.name);
@@ -298,13 +306,17 @@
       fillColor: function () {
         switch (this.state) {
         case BrickState.active:
-          return this.name? C.color.namedBrick : C.color.boxtone;
+          return this.normalColor();
         case BrickState.dying:
-          var flash = ((this.deathCountdown >> 3) & 1) === 0;
-          return flash? C.color.dyingBrick : C.color.namedBrick;
+          var flash = ((this.deathCountdown >> 3) & 1);
+          return flash? C.color.dyingBrick : this.normalColor();
         default:
           return C.color.dyingBrick;
         }
+      },
+
+      normalColor: function () {
+        return this.name? C.color.namedBrick : C.color.boxtone;
       },
 
       animate: function (c) {
@@ -783,6 +795,8 @@
       paddle: Paddle(),
       bricks: [],
       destroyedBricks: 0,
+      destroyedNamedBricks: 0,
+      namedBrickCount: 0,
       
       objects: [],
       keys: [],
@@ -805,7 +819,7 @@
         this.tickBound = this.tick.bind(this);
         this.setState(State.pregame);
         this.registerObjects();
-        this.reset();
+        this.reset(true);
 
         if (!this.boundListeners) {
           this.boundListeners = {
@@ -971,8 +985,12 @@
         };
 
         var brickCount = Math.min(C.namedBrickMax, namedBricks.length);
+        this.namedBrickCount = 0;
         for (var i = 0; i < brickCount; ++i) {
           var name = nextName();
+          if (name) {
+            ++this.namedBrickCount;
+          }
           nextBrick().setName(name);
         }
       },
@@ -983,23 +1001,37 @@
         this.render(c);
       },
 
-      destroyedBrick: function () {
+      destroyedBrick: function (brick) {
         ++this.destroyedBricks;
+        if (brick.name) {
+          ++this.destroyedNamedBricks;
+        }
         if (this.destroyedBricks >= this.bricks.length) {
           this.setState(State.screencleared);
+          return;
+        }
+
+        if (this.namedBrickCount > 10 && this.destroyedNamedBricks >= (this.namedBrickCount - 3)) {
+          for (var i = 0, length = this.bricks.length; i < length; ++i) {
+            var brick = this.bricks[i];
+            if (brick.isAlive()) {
+              brick.startDying();
+            }
+          }
         }
       },
 
-      reset: function () {
+      reset: function (newgame) {
         this.clearScalps();
         this.clearBrickNames();
         this.assignBrickNames();
 
-        this.resetScreen(true);
+        this.resetScreen(newgame);
       },
 
       resetScreen: function (newgame) {
         this.destroyedBricks = 0;
+        this.destroyedNamedBricks = 0;
         this.grid.clear();
         for (var i = 0, length = this.objects.length; i < length; ++i) {
           var obj = this.objects[i];
@@ -1055,7 +1087,7 @@
         if (e.keyCode === C.key.enter || this.state === State.balllost) {
           if (this.state === State.pregame || this.state >= State.balllost) {
             if (this.state > State.balllost) {
-              this.reset();
+              this.reset(true);
             }
             this.setState(State.game);
           }
@@ -1111,7 +1143,7 @@
           this.showScreenCleared(c);
           if (--this.nextScreenCountDown <= 0) {
             this.nextScreenCountDown = 0;
-            this.reset();
+            this.reset(false);
             this.setState(State.game);
           }
           break;
@@ -1142,7 +1174,7 @@
         c.strokeStyle = '#666';
         c.textAlign = 'center';
         c.font = 'bold 48px "Lucida Grande", Helvetica, Arial';
-        var msg = 'Screen Cleared!';
+        var msg = 'Stock Options Awarded!';
         c.fillText(msg, C.width / 2, C.height / 2);
         c.strokeText(msg, C.width / 2, C.height / 2);
         this.resetShadow(c);
