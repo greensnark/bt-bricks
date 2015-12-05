@@ -802,6 +802,7 @@
       
       objects: [],
       keys: [],
+      transients: [],
 
       score: ScoreTicker(0),
       maxScore: 0,
@@ -867,6 +868,7 @@
         if (this.objects.lastIndexOf(sprite) === -1) {
           sprite.world = this;
           this.objects.push(sprite);
+          this.transients.push(sprite);
         }
       },
 
@@ -874,6 +876,10 @@
         var idx = this.objects.lastIndexOf(sprite);
         if (idx !== -1) {
           this.objects.splice(idx, 1);
+          var transientIndex = this.transients.lastIndexOf(sprite);
+          if (transientIndex !== -1) {
+            this.transients.splice(transientIndex, 1);
+          }
           return true;
         }
         return false;
@@ -1124,8 +1130,16 @@
           var context = this.canvas.getContext('2d');
           context.clearRect(0, C.gameTop - 1, C.width, C.height);
           this.drawBorder(context);
-          for (var i = this.objects.length - 1; i >= 0; --i) {
-            this.objects[i].animate(context);
+
+          for (var i = this.transients.length - 1; i >= 0; --i) {
+            this.transients[i].animate(context);
+          }
+          this.paddle.animate(context);
+          this.ball.animate(context);
+          this.score.animate(context);
+          this.ballReserve.animate(context);
+          for (i = this.bricks.length - 1; i >= 0; --i) {
+            this.bricks[i].animate(context);
           }
           this.showGameState(context);
         } finally {
