@@ -1350,7 +1350,7 @@
     if (!container) {
       container = document.createElement('div');
       container.setAttribute('id', 'ee-root');
-      container.setAttribute('style', 'overflow: hidden; position: fixed; left: 0; top: 0; width: 100%; height: 800px; cursor: none');
+      container.setAttribute('style', 'overflow: hidden; position: fixed; left: 0; top: 0; width: 100%; height: 800px; cursor: none; z-index: 20000');
       document.body.appendChild(container);
     }
 
