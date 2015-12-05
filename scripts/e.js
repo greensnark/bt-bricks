@@ -138,33 +138,59 @@
       return 1;
     });  
 
-  var M = {
-    radian: function (deg) {
-      return deg * Math.PI / 180;
-    },
+  var M = (function () {
+    var radians = new Array(360);
+    var cosines = new Array(360);
+    var sines = new Array(360);
 
-    degree: function (rad) {
-      return rad * 180 / Math.PI;
-    },
-
-    pos: function (x, y) {
-      return {
-        x: x,
-        y: y,
-
-        assign: function (o) {
-          this.x = o.x;
-          this.y = o.y;
-        },
-
-        addPolar: function (mag, angleDegrees) {
-          var rad = M.radian(angleDegrees);
-          this.x += mag * Math.cos(rad);
-          this.y += mag * Math.sin(rad);
-        }
-      };
+    for (var degree = 0; degree < 360; ++degree) {
+      var rad = degree * Math.PI / 180;
+      radians[degree] = rad;
+      cosines[degree] = Math.cos(rad);
+      sines[degree] = Math.sin(rad);
     }
-  };
+    
+    return {
+      // Argument MUST be integer in the range [0, 360)
+      radian: function (deg) {
+        return radians[deg];
+      },
+
+      // Argument MUST be integer in the range [0, 360)
+      cos: function (deg) {
+        return cosines[deg];
+      },
+
+      sin: function (deg) {
+        return sines[deg];
+      },
+
+      normalizeDegrees: function (deg) {
+        deg = Math.round(deg);
+        return deg < 0 ? 360 - (-deg % 360) : deg % 360;
+      },
+
+      pos: function (x, y) {
+        return {
+          x: x,
+          y: y,
+
+          assign: function (o) {
+            this.x = o.x;
+            this.y = o.y;
+          },
+
+          addPolar: function (mag, angleDegrees) {
+            var rad = M.radian(angleDegrees);
+            this.x += mag * Math.cos(rad);
+            this.y += mag * Math.sin(rad);
+          }
+        };
+      }
+    };
+  })();
+
+  
 
   var Bounds = function () {
     return {
@@ -224,10 +250,11 @@
 
       setName: function (name) {
         this.name = name;
+        this.color = this.normalColor();
       },
 
       clearName: function () {
-        this.name = undefined;
+        this.setName(undefined);
       },
 
       getBBox: function () {
@@ -301,25 +328,19 @@
       },
       
       render: function (c) {
-        if (this.state === BrickState.dead) {
-          if (this.needRemove) {
-            this.world.grid.remove(this);
-            this.needRemove = false;
-          }
-          return;
+        if (this.state !== BrickState.dead) {
+          c.fillStyle = this.fillColor();
+          c.fillRect(this.bbox.x1, this.bbox.y1, C.block.width, C.block.height);
         }
-        
-        c.fillStyle = this.fillColor();
-        c.fillRect(this.bbox.x1, this.bbox.y1, C.block.width, C.block.height);
       },
 
       fillColor: function () {
         switch (this.state) {
         case BrickState.active:
-          return this.normalColor();
+          return this.color;
         case BrickState.dying:
           var flash = ((this.deathCountdown >> 3) & 1);
-          return flash? C.color.dyingBrick : this.normalColor();
+          return flash? C.color.dyingBrick : this.color;
         default:
           return C.color.dyingBrick;
         }
@@ -330,7 +351,13 @@
       },
 
       animate: function (c) {
+        if (this.state === BrickState.dead && this.needRemove) {
+          this.world.grid.remove(this);
+          this.needRemove = false;
+        }
+        
         this.render(c);
+        
         if (this.state === BrickState.dying && --this.deathCountdown <= 0) {
           this.destroy();
         }
@@ -576,8 +603,7 @@
 
       bounceAngle: function (collideAngle) {
         var delta = this.angle - collideAngle;
-        var bounceAngle = Math.round(this.angle + (180 - 2 * delta) + this.bounceFuzz(this.angle)) % 360;
-        return bounceAngle;
+        return M.normalizeDegrees((this.angle + (180 - 2 * delta) + this.bounceFuzz(this.angle)));
       },
 
       bounceFuzz: function () {
@@ -589,9 +615,9 @@
       },
 
       collidesAtAngle: function (theta) {
-        var rad = M.radian(theta);
-        var x = this.p.x + this.radius * Math.cos(rad),
-            y = this.p.y + this.radius * Math.sin(rad);
+        theta = M.normalizeDegrees(theta);
+        var x = this.p.x + this.radius * M.cos(theta),
+            y = this.p.y + this.radius * M.sin(theta);
         return this.collidesAtPoint(x, y);
       },
 
@@ -1135,26 +1161,26 @@
       },
 
       animate: function () {
+        // Using a try-finally here disables js optimization:
         this.animating = true;
-        try {
-          var context = this.canvas.getContext('2d');
-          context.clearRect(0, C.gameTop - 1, C.width, C.height);
-          this.drawBorder(context);
+        this.doAnimate();
+        this.animating = false;
+      },
 
-          for (var i = this.transients.length - 1; i >= 0; --i) {
-            this.transients[i].animate(context);
-          }
-          this.paddle.animate(context);
-          this.ball.animate(context);
-          this.score.animate(context);
-          this.ballReserve.animate(context);
-          for (i = this.bricks.length - 1; i >= 0; --i) {
-            this.bricks[i].animate(context);
-          }
-          this.showGameState(context);
-        } finally {
-          this.animating = false;
+      doAnimate: function () {
+        var context = this.canvas.getContext('2d');
+        context.clearRect(0, C.gameTop - 1, C.width, C.height);
+        for (var i = this.transients.length - 1; i >= 0; --i) {
+          this.transients[i].animate(context);
         }
+        this.paddle.animate(context);
+        this.ball.animate(context);
+        this.score.animate(context);
+        this.ballReserve.animate(context);
+        for (i = this.bricks.length - 1; i >= 0; --i) {
+          this.bricks[i].animate(context);
+        }
+        this.showGameState(context);
       },
 
       showGameState: function (c) {
@@ -1231,11 +1257,6 @@
         c.shadowOffsetX = 0;
         c.shadowOffsetY = 0;
         c.shadowBlur = 0;
-      },
-
-      drawBorder: function (c) {
-        c.strokeStyle = '#aaa';
-        c.strokeRect(0, C.gameTop + 0.5, C.width, C.height - C.gameTop - 0.5);
       },
 
       setAnimationActive: function (active) {
@@ -1343,7 +1364,7 @@
     var canvas = container.querySelector('canvas.main');
     if (!canvas) {
       canvas = document.createElement('canvas');
-      canvas.setAttribute('style', 'position: relative; top: ' + C.statusHeight + 'px');
+      canvas.setAttribute('style', 'position: relative; top: ' + C.statusHeight + 'px; border: 1px solid #9a9a9a');
       canvas.classList.add('main');
       canvas.setAttribute('width', C.width);
       canvas.setAttribute('height', C.height);
