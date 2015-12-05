@@ -749,7 +749,7 @@
       },
       
       render: function (c) {
-        this.world.scorePane.innerText = this.displayedScore;
+        this.world.scorePane.innerHTML = this.displayedScore;
       },
       
       animate: function (c) {
@@ -832,13 +832,13 @@
 
       addScalp: function (name) {
         if (!this.names.childNodes.length) {
-          this.rollCallTitle.innerText = '';
+          this.rollCallTitle.innerHTML = '';
         }
         var li = document.createElement('li');
         li.setAttribute('style', 'font: 10px "Lucida Grande", Helvetica, Arial; color: #999; list-style-type: decimal');
         var span = document.createElement('span');
         span.setAttribute('style', 'color: #333');
-        span.innerText = name;
+        span.innerHTML = name;
         li.appendChild(span);
         this.names.appendChild(li);
       },
@@ -1316,7 +1316,7 @@
     if (!container) {
       container = document.createElement('div');
       container.setAttribute('id', 'ee-root');
-      container.setAttribute('style', 'overflow: hidden; position: fixed; left: 0; top: 0; width: 100%; height: 800px');
+      container.setAttribute('style', 'overflow: hidden; position: fixed; left: 0; top: 0; width: 100%; height: 800px; cursor: none');
       document.body.appendChild(container);
     }
 
