@@ -5,6 +5,8 @@
     width: 850,
     height: 600,
 
+    namedBrickMax: 48, // Only so many named bricks in one screen.
+
     gridSize: 100,
 
     left: 0,
@@ -941,21 +943,37 @@
       },
 
       assignBrickNames: function () {
-        var availableIndexes = [];
-        for (var i = 0, length = this.bricks.length; i < length; ++i) {
-          availableIndexes.push(i);
-        }
+        var indexes = function (n) {
+          var res = [];
+          for (var i = n - 1; i >= 0; --i) {
+            res.push(i);
+          }
+          return res;
+        };
+        
+        var availableBricks = indexes(this.bricks.length);
+        var availableNames = indexes(namedBricks.length);
 
         var bricks = this.bricks;
+        var pickRandom = function (choices, indexes) {
+          var n = R.rand(indexes.length);
+          var chosen = choices[indexes[n]];
+          indexes.splice(n, 1);
+          return chosen;
+        };
+        
         var nextBrick = function () {
-          var n = R.rand(availableIndexes.length);
-          var brick = bricks[availableIndexes[n]];
-          availableIndexes.splice(n, 1);
-          return brick;
+          return pickRandom(bricks, availableBricks);
         };
 
-        for (i = 0, length = namedBricks.length; i < length; ++i) {
-          nextBrick().setName(namedBricks[i]);
+        var nextName = function () {
+          return pickRandom(namedBricks, availableNames);
+        };
+
+        var brickCount = Math.min(C.namedBrickMax, namedBricks.length);
+        for (var i = 0; i < brickCount; ++i) {
+          var name = nextName();
+          nextBrick().setName(name);
         }
       },
 
