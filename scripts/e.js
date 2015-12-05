@@ -228,9 +228,9 @@
         return (this.name ? 500 : 5);
       },
 
-      startDying: function () {
+      startDying: function (multiplier) {
         this.state = BrickState.dying;
-        this.deathCountdown = deathCycles;
+        this.deathCountdown = deathCycles * (multiplier || 1);
       },
 
       collideWith: function (thing) {
@@ -1015,7 +1015,7 @@
           for (var i = 0, length = this.bricks.length; i < length; ++i) {
             var brick = this.bricks[i];
             if (brick.isAlive()) {
-              brick.startDying();
+              brick.startDying(5);
             }
           }
         }
