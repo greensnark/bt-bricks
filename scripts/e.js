@@ -181,9 +181,8 @@
           },
 
           addPolar: function (mag, angleDegrees) {
-            var rad = M.radian(angleDegrees);
-            this.x += mag * Math.cos(rad);
-            this.y += mag * Math.sin(rad);
+            this.x += mag * M.cos(angleDegrees);
+            this.y += mag * M.sin(angleDegrees);
           }
         };
       }
