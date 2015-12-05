@@ -1169,7 +1169,7 @@
 
       doAnimate: function () {
         var context = this.canvas.getContext('2d');
-        context.clearRect(0, C.gameTop - 1, C.width, C.height);
+        context.clearRect(0, 0, C.width, C.height);
         for (var i = this.transients.length - 1; i >= 0; --i) {
           this.transients[i].animate(context);
         }
