@@ -1203,36 +1203,20 @@
       },
 
       showPreGame: function (c) {
-        c.shadowColor = '#999';
-        c.shadowOffsetX = 2;
-        c.shadowOffsetY = 2;
-        c.shadowBlur = 4;
-        c.fillStyle = '#fff';
-        c.textAlign = 'center';
-        c.font = 'bold 36px "Lucida Grande", Helvetica, Arial';
-
-        var msg = 'Hit Enter to start, arrow keys move';
-        c.fillText(msg, C.width / 2, C.height / 2);
-        c.strokeText(msg, C.width / 2, C.height / 2);
+        this.setTextStyles(c);
+        this.setSubtitleFont(c);
+        this.message(c, 'Hit Enter to start, arrow keys move', C.width / 2, C.height / 2);
         this.resetShadow(c);
       },
 
       showScreenCleared: function (c) {
-        c.shadowColor = '#999';
-        c.shadowOffsetX = 2;
-        c.shadowOffsetY = 2;
-        c.shadowBlur = 4;
-        c.fillStyle = '#fff';
-        c.strokeStyle = '#666';
-        c.textAlign = 'center';
-        c.font = 'bold 48px "Lucida Grande", Helvetica, Arial';
-        var msg = 'Stock Options Awarded!';
-        c.fillText(msg, C.width / 2, C.height / 2);
-        c.strokeText(msg, C.width / 2, C.height / 2);
+        this.setTextStyles(c);
+        this.setLargeFont(c);
+        this.message(c, 'Preferred Stock Awarded!', C.width / 2, C.height / 2);
         this.resetShadow(c);
       },
 
-      showGameOver: function (c) {
+      setTextStyles: function (c) {
         c.shadowColor = '#999';
         c.shadowOffsetX = 2;
         c.shadowOffsetY = 2;
@@ -1240,15 +1224,28 @@
         c.fillStyle = '#fff';
         c.strokeStyle = '#666';
         c.textAlign = 'center';
+      },
+
+      setLargeFont: function (c) {
         c.font = 'bold 48px "Lucida Grande", Helvetica, Arial';
-        c.fillText('Game Over', C.width / 2, C.height / 2);
-        c.strokeText('Game Over', C.width / 2, C.height / 2);
-        
+      },
+
+      setSubtitleFont: function (c) {
         c.font = 'bold 36px "Lucida Grande", Helvetica, Arial';
-        c.fillText('Score: ' + this.score.score, C.width / 2, C.height / 2 + 50);
-        c.fillText('Rank: ' + this.score.getRank(), C.width / 2, C.height / 2 + 100);
-        c.strokeText('Score: ' + this.score.score, C.width / 2, C.height / 2 + 50);
-        c.strokeText('Rank: ' + this.score.getRank(), C.width / 2, C.height / 2 + 100);
+      },
+
+      message: function (c, text, x, y) {
+        c.fillText(text, x, y);
+        c.strokeText(text, x, y);
+      },
+
+      showGameOver: function (c) {
+        this.setTextStyles(c);
+        this.setLargeFont(c);
+        this.message(c, 'Game Over', C.width / 2, C.height / 2);
+        this.setSubtitleFont(c);
+        this.message(c, 'Score: ' + this.score.score, C.width / 2, C.height / 2 + 50);
+        this.message(c, 'Rank: ' + this.score.getRank(), C.width / 2, C.height / 2 + 100);
         this.resetShadow(c);
       },
 
