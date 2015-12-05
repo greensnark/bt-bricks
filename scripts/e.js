@@ -304,7 +304,7 @@
       clearSurroundingBlocks: function (thing) {
         for (var y = -1; y <= 1; ++y) {
           for (var x = -1; x <= 1; ++x) {
-            if ((!x && !y) || (x && y)) {
+            if ((!x && !y)) {
               continue;
             }
             var blockX = Math.floor(this.p.x + (x + 0.5) * (C.block.width + C.block.gutter)),
