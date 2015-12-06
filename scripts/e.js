@@ -114,15 +114,15 @@
         "Alan Snyder", "Alvin Guingab", "Anna Yap", "Annu Singh", "Anthony DeStefano",
         "Arianne Weston", "Ashwath Akirekadu", "Ashwin Eapen", "Bill Mollock",
         "Brian Murphy", "Brian Scheffey", "Bryant Maltese", "Cameron Horn",
-        "Darshan Shaligram", "Daniel Cook", "Deepti Paranjape", "Dinesh Bhat", "Edna Malloy",
-        "Galit Miller", "George Anderson", "Georgiy Frolov", "Greg Delaney", "Greg Persch",
-        "Gregg Ginsberg", "Himanshu Kesar", "Howie Rappaport", "Janice Gluck", "Jennifer Cicik",
-        "Jill Samuel", "Jim Farrow", "Jim Jarrett", "Jim Jordan", "Jon Edmunds", "Kenn Louis",
-        "Ki Jones", "Liz Crooks", "Liz Shannon", "Mark Donovan", "Matt Covington", "Matt Nehrbass",
-        "Matt Smith", "Maureen DeLong", "Mike Gaffney", "Mike Lott", "Mike Ramsay", "Missy Mack",
-        "Mitch Berk", "Nat Medija", "Nicole Dunn", "Pat Pulliam", "Peter Kim",
-        "Prayank Sharma", "Ruchika Yadav", "Rusty Fiste", "Shi-Yue Qiu",
-        "Sameet Nasnodkar", "Samir Agte", "Shweta Harisinghani", "Sigurd Knippenberg", "Sinclair Bain",
+        "Darshan Shaligram", "Daniel Cook", "Danny Dorsey", "Deepti Paranjape", "Dinesh Bhat",
+        "Edna Malloy", "Galit Miller", "George Anderson", "Georgiy Frolov", "Greg Delaney",
+        "Greg Persch", "Gregg Ginsberg", "Himanshu Kesar", "Howie Rappaport", "Janice Gluck",
+        "Jennifer Cicik", "Jill Samuel", "Jim Farrow", "Jim Jarrett", "Jim Jordan", "Jon Edmunds",
+        "Kenn Louis",  "Ki Jones", "Liz Crooks", "Liz Shannon", "Mark Donovan", "Matt Covington",
+        "Matt Nehrbass", "Matt Smith", "Maureen DeLong", "Mike Gaffney", "Mike Lott", "Mike Ramsay",
+        "Missy Mack", "Mitch Berk", "Nat Medija", "Nicole Dunn", "Pat Pulliam", "Peter Kim",
+        "Prayank Sharma", "Ruchika Yadav", "Rusty Fiste", "Shi-Yue Qiu", "Sameet Nasnodkar",
+        "Samir Agte", "Shweta Harisinghani", "Sigurd Knippenberg", "Sinclair Bain",
         "Star Miller", "Steven Hor", "Sui Severance", "Susmitha Girumala", "Tim Head", "Todd Sackett",
         "Vipul Pathak", "Vishal Gupta", "Yancy Davis"
       ];
@@ -1029,6 +1029,8 @@
       objects: [],
       keys: [],
       transients: [],
+      touches: { },
+      touchState: { },
 
       score: ScoreTicker(0),
       maxScore: 0,
@@ -1055,7 +1057,10 @@
           this.boundListeners = {
             keypress: this.onKeyPress.bind(this),
             keydown: this.onKeyDown.bind(this),
-            keyup: this.onKeyUp.bind(this)
+            keyup: this.onKeyUp.bind(this),
+            touchstart: this.onTouchStart.bind(this),
+            touchmove: this.onTouchMove.bind(this),
+            touchend: this.onTouchEnd.bind(this),
           };
         }
 
@@ -1297,7 +1302,70 @@
         return score;
       },
 
+      setTouched: function (touched, id, x, y) {
+        if (touched) {
+          if (!this.touches[id]) {
+            this.touches[id] = { x: x, y: y };
+          } else {
+            var t = this.touches[id];
+            t.x = x;
+            t.y = y;
+          }
+        } else {
+          delete this.touches[id];
+        }
+      },
+
+      onTouchStart: function (e) {
+        e.preventDefault();
+        var touches = e.touches;
+        for (var i = touches.length - 1; i >= 0; --i) {
+          var t = touches[i];
+          this.setTouched(true, t.identifier, t.clientX, t.clientY);
+        }
+        this.updateTouchState();
+      },
+
+      onTouchMove: function (e) {
+        this.onTouchStart(e);
+      },
+
+      onTouchEnd: function (e) {
+        e.preventDefault();
+        for (var i = touches.length - 1; i >= 0; --i) {
+          var t = touches[i];
+          this.setTouched(false, t.identifier, t.clientX, t.clientY);
+        }
+        this.updateTouchState();
+      },
+
+      updateTouchState: function () {
+        var screenX = window.innerWidth;
+        var halfDeadZoneWidth = screenX / 8;
+        var leftX = screenX / 2 - halfDeadZoneWidth;
+        var rightX = screenX / 2 + halfDeadZoneWidth;
+
+        var leftTouches = 0, rightTouches = 0;
+        for (var id in this.touches) {
+          var obj = this.touches[id];
+          if (obj.x <= leftX) {
+            leftTouches++;
+          }
+          if (obj.x >= rightX) {
+            rightTouches++;
+          }
+        }
+        if (leftTouches > rightTouches) {
+          this.keys[C.key.left] = 1;
+          this.keys[C.key.right] = 0;
+        } else if (rightTouches > leftTouches) {
+          this.keys[C.key.right] = 1;
+          this.keys[C.key.left] = 0;
+        }
+      },
+
       onKeyPress: function (e) {
+        e.preventDefault();
         switch (String.fromCharCode(e.charCode)) {
         case ' ':
           this.setPaused(!this.paused);
@@ -1472,6 +1540,7 @@
         this.setTextStyles(c);
         this.setSubtitleFont(c);
         this.message(c, 'Hit Enter to start, arrow keys move', C.width / 2, C.height / 2);
+        this.message(c, 'Or tap to start, touch left/right to move', C.width / 2, C.height / 2 + 50);
         this.resetShadow(c);
       },
 
@@ -1658,7 +1727,7 @@
     if (!container) {
       container = document.createElement('div');
       container.setAttribute('id', 'ee-root');
-      container.setAttribute('style', 'overflow: hidden; position: fixed; left: 0; top: 0; width: 100%; height: 800px; cursor: none; z-index: 20000');
+      container.setAttribute('style', 'overflow: hidden; position: fixed; left: 0; top: 0; width: 100%; height: 1500px; cursor: none; z-index: 20000');
       document.body.appendChild(container);
     }
 
