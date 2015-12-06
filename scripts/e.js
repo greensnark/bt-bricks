@@ -1113,9 +1113,9 @@
       },
 
       setState: function (state) {
+        this.redraw = true;
         if (state !== this.state) {
           this.state = state;
-          this.redraw = true;
 
           switch (state) {
           case State.balllost:
@@ -1399,6 +1399,19 @@
         this.redrawDirty(context);
         this.showGameState(context);
         this.redraw = false;
+        this.applyStateTransitions();
+      },
+
+      applyStateTransitions: function () {
+        switch (this.state) {
+        case State.screencleared:
+          if (--this.nextScreenCountDown <= 0) {
+            this.nextScreenCountDown = 0;
+            this.reset(false);
+            this.setState(State.game);
+          }
+          break;
+        }
       },
 
       checkDirty: function (bbox, sprite) {
@@ -1451,11 +1464,6 @@
           break;
         case State.screencleared:
           this.showScreenCleared(c);
-          if (--this.nextScreenCountDown <= 0) {
-            this.nextScreenCountDown = 0;
-            this.reset(false);
-            this.setState(State.game);
-          }
           break;
         }
       },
