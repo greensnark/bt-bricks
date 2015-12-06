@@ -18,7 +18,7 @@
     background: '#fff',
 
     rollCall: {
-      width: 180,
+      width: 150,
       height: 600
     },
     
@@ -1079,7 +1079,7 @@
           this.rollCallTitle.innerHTML = '';
         }
         var li = document.createElement('li');
-        li.setAttribute('style', 'font: 10px "Lucida Grande", Helvetica, Arial; color: #999; list-style-type: decimal');
+        li.setAttribute('style', 'font: 10px "Lucida Grande", Helvetica, Arial; color: #999; list-style-type: decimal; margin-left: 15px');
         var span = document.createElement('span');
         span.setAttribute('style', 'color: #333');
         span.innerHTML = name;
@@ -1573,7 +1573,7 @@
     if (!container) {
       container = document.createElement('div');
       container.classList.add('ee-layout');
-      container.setAttribute('style', 'position: relative; z-index: 5; display: block; margin: 15px auto; width: ' + C.width + 'px; height: ' + (C.height + C.statusHeight) + 'px');
+      container.setAttribute('style', 'position: relative; z-index: 5; display: block; margin: 8px auto 8px 8px; width: ' + C.width + 'px; height: ' + (C.height + C.statusHeight) + 'px');
       place.appendChild(container);
     }
     
@@ -1583,9 +1583,9 @@
       if (!rollCall) {
         rollCall = document.createElement('div');
         rollCall.classList.add('ee-rollcall');
-        rollCall.setAttribute('style', 'position: absolute; left: -' + C.rollCall.width + 'px; top: ' + C.statusHeight + 'px; margin: 0; padding: 0; padding-left: 15px');
-        rollCall.setAttribute('height', C.rollCall.height);
-        rollCall.setAttribute('width', C.rollCall.width);
+        rollCall.setAttribute('style', 'position: absolute; left: 855px; width: ' +
+                              C.rollCall.width + 'px; top: ' + C.statusHeight +
+                              'px; margin: 0; padding: 0; padding-left: 5px');
         container.appendChild(rollCall);
       }
 
@@ -1601,6 +1601,7 @@
       if (!names) {
         names = document.createElement('ol');
         names.classList.add('names');
+        names.setAttribute('style', 'padding: 0');
         rollCall.appendChild(names);
       }
       
@@ -1673,7 +1674,7 @@
     if (!payload) {
       payload = document.createElement('div');
       payload.setAttribute('id', 'ee-payload');
-      payload.setAttribute('style', 'position: relative; left: -50%; border-radius: 5px; width: 1250px; height: 700px; background: #fff; box-shadow: 0 0 15px #000');
+      payload.setAttribute('style', 'position: relative; left: -50%; border-radius: 5px; width: 1024px; padding-bottom: 1px; background: #fff; box-shadow: 0 0 15px #000');
       wrapper.appendChild(payload);
     }
     btStartEgg();
