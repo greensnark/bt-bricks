@@ -450,7 +450,6 @@
         var m = c.measureText(this.name);
         this.textBBox.width = Math.floor(m.width * 1.5);
         this.textBBox.height = 35;
-        console.log("Measured size for " + this.name + ": " + this.textBBox.width + " x " + this.textBBox.height);
       },
 
       animate: function (c) {
