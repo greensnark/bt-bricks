@@ -5,6 +5,15 @@
     width: 850,
     height: 600,
 
+    touchscreen: (function () {
+      try {
+        document.createEvent('TouchEvent');
+        return true;
+      } catch (e) {
+        return false;
+      }
+    })(),
+
     namedBrickMax: 48, // Only so many named bricks in one screen.
 
     gridSize: 100,
@@ -1552,8 +1561,11 @@
       showPreGame: function (c) {
         this.setTextStyles(c);
         this.setSubtitleFont(c);
-        this.message(c, 'Hit Enter to start, arrow keys move', C.width / 2, C.height / 2);
-        this.message(c, 'Or tap to start, touch left/right to move', C.width / 2, C.height / 2 + 50);
+        if (C.touchscreen) {
+          this.message(c, 'Tap to start, touch to left/right to move', C.width / 2, C.height / 2 + 50);
+        } else {
+          this.message(c, 'Hit Enter to start, arrow keys to move', C.width / 2, C.height / 2);
+        }
         this.resetShadow(c);
       },
 
@@ -1655,7 +1667,7 @@
     if (!container) {
       container = document.createElement('div');
       container.classList.add('ee-layout');
-      container.setAttribute('style', 'position: relative; z-index: 5; display: block; margin: 8px auto 8px 8px; width: ' + C.width + 'px; height: ' + (C.height + C.statusHeight) + 'px');
+      container.setAttribute('style', 'position: relative; z-index: 5; display: block; margin: 15px auto; width: ' + C.width + 'px; height: ' + (C.height + C.statusHeight) + 'px');
       place.appendChild(container);
     }
     
@@ -1665,9 +1677,8 @@
       if (!rollCall) {
         rollCall = document.createElement('div');
         rollCall.classList.add('ee-rollcall');
-        rollCall.setAttribute('style', 'position: absolute; left: 855px; width: ' +
-                              C.rollCall.width + 'px; top: ' + C.statusHeight +
-                              'px; margin: 0; padding: 0; padding-left: 5px');
+        rollCall.setAttribute('style', 'position: absolute; left: -' + C.rollCall.width + 'px; top: ' +
+                              C.statusHeight + 'px; margin: 0; padding: 0; padding-left: 15px');        
         container.appendChild(rollCall);
       }
 
@@ -1740,7 +1751,7 @@
     if (!container) {
       container = document.createElement('div');
       container.setAttribute('id', 'ee-root');
-      container.setAttribute('style', 'overflow: hidden; position: fixed; left: 0; top: 0; width: 100%; height: 1500px; cursor: none; z-index: 20000');
+      container.setAttribute('style', 'overflow: hidden; position: fixed; left: 0; top: 0; width: 100%; height: 800px; cursor: none; z-index: 20000');
       document.body.appendChild(container);
     }
 
@@ -1756,7 +1767,7 @@
     if (!payload) {
       payload = document.createElement('div');
       payload.setAttribute('id', 'ee-payload');
-      payload.setAttribute('style', 'position: relative; left: -50%; border-radius: 5px; width: 1024px; padding-bottom: 1px; background: #fff; box-shadow: 0 0 15px #000');
+      payload.setAttribute('style', 'position: relative; left: -50%; border-radius: 5px; width: 1250px; padding-bottom: 1px; background: #fff; box-shadow: 0 0 15px #000');
       wrapper.appendChild(payload);
     }
     btStartEgg();
