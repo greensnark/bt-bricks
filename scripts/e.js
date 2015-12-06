@@ -128,7 +128,7 @@
         "Greg Delaney", "Greg Persch", "Gregg Ginsberg", "Himanshu Kesar", "Howie Rappaport", "Janice Gluck",
         "Jennifer Cicik", "Jill Samuel", "Jim Farrow", "Jim Jarrett", "Jim Jordan", "Jon Edmunds",
         "Kenn Louis",  "Ki Jones", "Liz Crooks", "Liz Shannon", "Mark Donovan", "Matt Covington",
-        "Matt Nehrbass", "Matt Smith", "Maureen DeLong", "Mike Gaffney", "Mike Lott", "Mike Ramsay",
+        "Matt Nehrbass", "Matt Smith", "Maureen Delong", "Mike Gaffney", "Mike Lott", "Mike Ramsay",
         "Missy Mack", "Mitch Berk", "Nat Medija", "Nicole Dunn", "Pat Pulliam", "Peter Kim",
         "Prayank Sharma", "Rakesh Kashyap", "Rashmi Deshpande", "Ruchika Yadav", "Rusty Fiste", "Shi-Yue Qiu",
         "Sameet Nasnodkar", "Samir Agte", "Shweta Harisinghani", "Sigurd Knippenberg", "Sinclair Bain",
