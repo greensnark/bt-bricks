@@ -1386,7 +1386,9 @@
         e.preventDefault();
         switch (String.fromCharCode(e.charCode)) {
         case ' ':
-          this.setPaused(!this.paused);
+          if (State.isActive(this.state)) {
+            this.setPaused(!this.paused);
+          }
           break;
         }
       },
@@ -1439,6 +1441,10 @@
 
       setPaused: function (paused) {
         this.paused = paused;
+
+        var c = this.canvas.getContext('2d');
+        this.clearScreen(c);
+        this.render(c);
       },
  
       render: function (c) {
@@ -1463,10 +1469,14 @@
         this.animating = false;
       },
 
+      clearScreen: function (c) {
+        c.clearRect(0, 0, C.width, C.height);
+      },
+
       doAnimate: function () {
         var context = this.canvas.getContext('2d');
         if (this.isFullRedraw()) {
-          context.clearRect(0, 0, C.width, C.height);
+          this.clearScreen(context);
         }
 
         this.ndirty = 0;
@@ -1545,6 +1555,9 @@
       },
 
       showGameState: function (c) {
+        if (this.paused) {
+          this.showPaused(c);
+        }
         switch (this.state) {
         case State.gameover:
           this.showGameOver(c);
@@ -1597,6 +1610,13 @@
       message: function (c, text, x, y) {
         c.fillText(text, x, y);
         c.strokeText(text, x, y);
+      },
+
+      showPaused: function (c) {
+        this.setTextStyles(c);
+        this.setSubtitleFont(c);
+        this.message(c, 'Paused, hit space to resume', C.width / 2, C.height / 2 - 50);
+        this.resetShadow(c);
       },
 
       showGameOver: function (c) {
