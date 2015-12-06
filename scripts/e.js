@@ -189,39 +189,24 @@
     };
   })();
 
-  
-
-  var Bounds = function () {
+  var Sprite = function () {
+    var id = 0;
     return {
-      x1: 0, y1: 0, x2: 0, y2: 0,
-
-      assign: function (o) {
-        this.x1 = o.x1;
-        this.x2 = o.x2;
-        this.y1 = o.y1;
-        this.y2 = o.y2;
-        return this;
-      },
-
-      isValid: function () {
-        return this.x1 || this.x2 || this.y1 || this.y2;
+      // nextId returns the next unique sprite id.
+      nextId: function () {
+        return ++id;
       }
     };
-  };
-
-  var BrickState = {
-    active: 1,
-    dying: 2,
-    dead: 3
-  };
-
+  }();
+  
   var Bounds = function () {
     var sentinel = -1000;
     return {
-      x1: 0, y1: 0, x2: 0, y2: 0,
+      x1: sentinel, y1: sentinel, x2: sentinel, y2: sentinel,
 
       isValid: function () {
-        return !(this.x1 === sentinel || this.y1 === sentinel || this.x2 === sentinel || this.y2 === sentinel);
+        return !(this.x1 === sentinel || this.y1 === sentinel ||
+                 this.x2 === sentinel || this.y2 === sentinel);
       },
 
       assign: function (other) {
@@ -229,19 +214,25 @@
         this.x2 = other.x2;
         this.y1 = other.y1;
         this.y2 = other.y2;
+        return this;
       },
-        
+
+      // dirtyBBox sets this bounding box to the smallest covering rectangle
+      // that contains both oldBB and newBB.
       dirtyBBox: function (oldBB, newBB) {
         this.x1 = Math.min(oldBB.x1, newBB.x1);
         this.x2 = Math.max(oldBB.x2, newBB.x2);
         this.y1 = Math.min(oldBB.y1, newBB.y1);
         this.y2 = Math.min(oldBB.y2, newBB.y2);
+        return this;
       },
       
       reset: function () {
         this.x1 = this.y1 = this.x2 = this.y2 = sentinel;
       },
 
+      // Expand expands this bounding box to encompass the rectangle supplied
+      // (as top-left and bottom-right corners).
       expand: function (nx1, ny1, nx2, ny2) {
         if (nx1 < this.x1) {
           this.x1 = nx1;
@@ -258,15 +249,12 @@
       }
     };
   };
-
-  var Sprite = function () {
-    var id = 0;
-    return {
-      nextId: function () {
-        return ++id;
-      }
-    };
-  }();
+  
+  var BrickState = {
+    active: 1,
+    dying: 2,
+    dead: 3
+  };
 
   var Brick = function (x, y) {
     var deathCycles = 32;
@@ -429,51 +417,52 @@
       maxVelocity: 10,
       acceleration: 0.05,
       alpha: 1,
+      alive: true,
 
       textBBox: { width: 0, height: 0 },
       dirtyBounds: Bounds(),
 
       render: function (c) {
+        if (!this.alive) {
+          return;
+        }
         this.setStyle(c);
         c.fillText(this.name, this.x, this.y);
       },
 
       setStyle: function (c) {
         c.font = C.font.nameSprite;
-        var fillColor = 'rgba(30, 80, 150, ' + this.alpha + ')';
-        c.fillColor = fillColor;
+        c.fillStyle = C.color.boxtone;
         c.textAlign = 'center';
       },
 
       measureText: function (c) {
         this.setStyle(c);
         var m = c.measureText(this.name);
-        this.textBBox.width = (m.actualBoundingBoxLeft + m.actualBoundingBoxRight) / 2 + 5;
-        this.textBBox.height = (m.actualBoundingBoxAscent + m.actualBoundingBoxDescent) + 3;
+        this.textBBox.width = Math.floor(m.width * 1.5);
+        this.textBBox.height = 35;
+        console.log("Measured size for " + this.name + ": " + this.textBBox.width + " x " + this.textBBox.height);
       },
 
       animate: function (c) {
         if (!this.textBBox.width) {
           this.measureText(c);
         }
-        this.dirtyBounds.reset();
-        this.dirtyBounds.x1 = this.x - this.textBBox.width;
-        this.dirtyBounds.y1 = this.y - this.textBBox.height;
-        
+        this.dirtyBounds.x1 = this.x - this.textBBox.width / 2;
+        this.dirtyBounds.y1 = this.y - this.textBBox.height / 2;
+
         this.y += this.velocity;
+        this.dirtyBounds.x2 = this.dirtyBounds.x1 + this.textBBox.width;
+        this.dirtyBounds.y2 = this.dirtyBounds.y1 + this.textBBox.height + this.velocity;
+        
         this.velocity += this.acceleration;
         if (this.velocity > this.maxVelocity) {
           this.velocity = this.maxVelocity;
         }
-        this.alpha -= 0.002;
-        if (this.alpha < 0) {
-          this.alpha = 0;
-        }
-        this.dirtyBounds.x2 = this.dirtyBounds.x1 + this.textBBox.width * 2;
-        this.dirtyBounds.y2 = this.dirtyBounds.y1 + this.textBBox.height * 2;
 
-        if (this.alpha <= 0 || this.y >= C.height) {
+        if (this.y >= C.height) {
           this.world.removeSprite(this);
+          this.alive = false;
         }
         return this.dirtyBounds;
       }
@@ -770,6 +759,21 @@
       seenDirtyCells: [],
       nDirtyCells: 0,
 
+      render: function (c) {
+        c.strokeStyle = '#333';
+        c.fillStyle = '#333';
+        c.beginPath();
+        for (var y = 0; y < C.height; y += C.gridSize) {
+          c.moveTo(0, y);
+          c.lineTo(C.width, y);
+        }
+        for (var x = 0; x < C.width; x += C.gridSize) {
+          c.moveTo(x, 0);
+          c.lineTo(x, C.height);
+        }
+        c.stroke();
+      },
+
       clearDirty: function () {
         this.nDirtyCells = 0;
         this.seenDirtyCells.splice(0, this.seenDirtyCells.length);
@@ -861,6 +865,8 @@
             fn(x, y);
           }
         }
+        fn(box.x2, box.y1);
+        fn(box.x1, box.y2);
         fn(box.x2, box.y2);
       },
 
@@ -870,7 +876,7 @@
 
       cell: function (x, y) {
         if (!C.inBounds(x, y)) {
-          return undefined;
+          return null;
         }
         var row = this.gridIndex(y),
             col = this.gridIndex(x);
@@ -1143,7 +1149,7 @@
 
         var candidates = this.grid.objectsAt(x, y);
         if (!candidates) {
-          return undefined;
+          return null;
         }
         for (var i = 0, length = candidates.length; i < length; ++i) {
           var obj = candidates[i];
@@ -1154,7 +1160,7 @@
             return obj;
           }
         }
-        return undefined;
+        return null;
       },
 
       inWall: function (x, y) {
@@ -1373,12 +1379,14 @@
           context.clearRect(0, 0, C.width, C.height);
         }
 
+        this.ndirty = 0;
         // Loop explicitly over objects of the same types:
         // Looping over this.objects is much less code, but the
         // polymorphic animate call causes browsers to not inline
         // the call.
         for (var i = this.transients.length - 1; i >= 0; --i) {
-          this.transients[i].animate(context);
+          var tr = this.transients[i];
+          this.checkDirty(tr.animate(context), tr);
         }
         this.checkDirty(this.paddle.animate(context), this.paddle);
         this.checkDirty(this.ball.animate(context), this.ball);
@@ -1393,6 +1401,13 @@
         this.redraw = false;
       },
 
+      checkDirty: function (bbox, sprite) {
+        if (!bbox) {
+          return;
+        }
+        this.registerDirty(this.ndirty++, bbox, sprite);
+      },
+
       // redrawDirty draws the ball and all sprites that are in dirtied zones.
       redrawDirty: function (c) {
         if (this.isFullRedraw()) {
@@ -1400,21 +1415,26 @@
           return;
         }
 
-        var seenObjs = {};
+        this.markDirtyGridCells();
+        this.grid.redrawDirty(c);
+        for (var i = this.ndirty - 1; i >= 0; --i) {
+          this.dirtyList[i].obj.render(c);
+        }
+      },
+
+      markDirtyGridCells: function () {
         this.grid.clearDirty();
         for (var i = 0, length = this.ndirty; i < length; ++i) {
           var dirty = this.dirtyList[i];
           var d = dirty.dirty;
           this.grid.dirtyBBox(dirty.dirty);
         }
-        this.grid.redrawDirty(c);
-        this.ball.render(c);
       },
 
       registerDirty: function (ndirty, dirty, obj) {
         var dirtyObj = this.dirtyList[ndirty];
         if (!dirtyObj) {
-          this.dirtyList[ndirty] = dirtyObj = { dirty: dirty, obj: obj };
+          this.dirtyList[ndirty] = { dirty: dirty, obj: obj };
         } else {
           dirtyObj.dirty = dirty;
           dirtyObj.obj = obj;
