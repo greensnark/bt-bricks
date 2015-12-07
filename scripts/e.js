@@ -455,6 +455,14 @@
       animate: function (c) {
         if (!this.textBBox.width) {
           this.measureText(c);
+          var xlow = this.x - this.textBBox.width / 2;
+          if (xlow < 0) {
+            this.x = Math.floor(this.x - xlow);
+          }
+          var xhigh = this.x + this.textBBox.width / 2;
+          if (xhigh > C.width) {
+            this.x -= Math.floor(xhigh - C.width);
+          }
         }
         this.dirtyBounds.x1 = this.x - this.textBBox.width / 2;
         this.dirtyBounds.y1 = this.y - this.textBBox.height / 2;
