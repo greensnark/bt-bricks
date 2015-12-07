@@ -148,9 +148,9 @@
     });  
 
   var M = (function () {
-    var radians = new Array(360);
-    var cosines = new Array(360);
-    var sines = new Array(360);
+    var radians = new Float64Array(360);
+    var cosines = new Float64Array(360);
+    var sines = new Float64Array(360);
 
     for (var degree = 0; degree < 360; ++degree) {
       var rad = degree * Math.PI / 180;
