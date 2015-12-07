@@ -49,6 +49,12 @@
       height: 7,
       gutter: 1
     },
+
+    paddle: {
+      width: 90,
+      riserLength: 20,
+      riserHeight: 4
+    },
     
     key: {
       escape: 27,
@@ -62,7 +68,7 @@
     ball: {
       radius: 6.5,
       gutter: 50,
-      startHeightOffset: 50
+      startHeightOffset: 55
     },
 
     bat: {
@@ -213,6 +219,14 @@
     return {
       x1: sentinel, y1: sentinel, x2: sentinel, y2: sentinel,
 
+      toString: function () {
+        return "(" + this.x1 + "," + this.y1 + ") - (" + this.x2 + ", " + this.y2 + ")";
+      },
+      
+      contains: function (x, y) {
+        return (x >= this.x1 && x <= this.x2 && y >= this.y1 && y <= this.y2);
+      },
+      
       isValid: function () {
         return !(this.x1 === sentinel || this.y1 === sentinel ||
                  this.x2 === sentinel || this.y2 === sentinel);
@@ -485,14 +499,25 @@
     };
   };
 
+  var Triangle = function () {
+    return [{x: 0, y: 0},
+            {x: 0, y: 0},
+            {x: 0, y: 0}]
+  };
+
   var Paddle = function () {
     return {
       id: Sprite.nextId(),
       type: 'paddle',
       collisionTarget: true,
       p: M.pos(0, 0),
-      width: 75,
-      height: 8,
+      width: C.paddle.width,
+      halfWide: C.paddle.width / 2,
+      riserLength: C.paddle.riserLength,
+      riserHeight: C.paddle.riserHeight,
+
+      fill: '#111',
+      edgeT: Triangle(),
 
       move: 12,
       
@@ -505,24 +530,82 @@
       },
       
       getBBox: function () {
-        this.bbox.x1 = this.p.x - this.width / 2;
-        this.bbox.x2 = this.p.x + this.width / 2;
-        this.bbox.y1 = this.p.y;
-        this.bbox.y2 = this.p.y + this.height;
+        this.bbox.x1 = this.p.x - this.halfWide;
+        this.bbox.x2 = this.p.x + this.halfWide;
+        this.bbox.y1 = this.p.y - this.riserHeight;
+        this.bbox.y2 = this.p.y + this.riserHeight;
         return this.bbox;
       },
 
       containsPoint: function (x, y) {
-        return (x >= (this.p.x - this.width / 2) && x <= (this.p.x + this.width / 2) &&
-                y >= this.p.y && y <= (this.p.y + this.height));
+        var bbox = this.getBBox();
+        if (!bbox.contains(x, y)) {
+          return false;
+        }
+
+        // If it's in the rectangular midsection, that's easy:
+        if (x >= this.p.x - this.halfWide + this.riserLength &&
+            x <= this.p.x + this.halfWide - this.riserLength)
+        {
+          return true;
+        }
+
+        return (x < this.p.x ? this.overlapT(x, y, this.leftEdgeT())
+                : this.overlapT(x, y, this.rightEdgeT()));
+      },
+
+      tsign: function (x, y, x1, y1, x2, y2) {
+        return (x - x2) * (y1 - y2) - (x1 - x2) * (y - y2);
+      },
+      
+      overlapT: function (x, y, triangle) {
+        var a1 = this.tsign(x, y, triangle[0].x, triangle[0].y, triangle[1].x, triangle[1].y) < 0,
+            a2 = this.tsign(x, y, triangle[1].x, triangle[1].y, triangle[2].x, triangle[2].y) < 0;
+        if (a1 !== a2) {
+          return false;
+        }
+        var a3 = this.tsign(x, y, triangle[2].x, triangle[2].y, triangle[0].x, triangle[0].y) < 0;
+        return a1 === a3;
+      },
+
+      leftEdgeT: function () {
+        var e = this.edgeT;
+        e[0].x = this.p.x - this.halfWide;
+        e[0].y = this.p.y;
+        e[1].x = this.p.x - this.halfWide + this.riserLength;
+        e[1].y = this.p.y - this.riserHeight;
+        e[2].x = e[1].x;
+        e[2].y = this.p.y + this.riserHeight;
+        return e;
+      },
+
+      rightEdgeT: function () {
+        var e = this.edgeT;
+        e[0].x = this.p.x + this.halfWide;
+        e[0].y = this.p.y;
+        e[1].x = this.p.x + this.halfWide - this.riserLength;
+        e[1].y = this.p.y + this.riserHeight;
+        e[2].x = e[1].x;
+        e[2].y = this.p.y - this.riserHeight;
+        return e;
       },
 
       render: function (c) {
         var bbox = this.getBBox();
         c.font = '48px Helvetica';
-        c.fillStyle = '#111';
-        c.fillRect(this.p.x - this.width / 2, this.p.y,
-                   this.width, this.height);
+        c.fillStyle = this.fill;
+        c.beginPath();
+
+        var riserTop = this.p.y - this.riserHeight;
+        var riserBottom = this.p.y + this.riserHeight;
+        var halfWide = this.halfWide;
+        c.moveTo(this.p.x - halfWide, this.p.y);
+        c.lineTo(this.p.x - halfWide + this.riserLength, riserBottom);
+        c.lineTo(this.p.x + halfWide - this.riserLength, riserBottom);
+        c.lineTo(this.p.x + halfWide, this.p.y);
+        c.lineTo(this.p.x + halfWide - this.riserLength, riserTop);
+        c.lineTo(this.p.x - halfWide + this.riserLength, riserTop);
+        c.fill();
       },
 
       animate: function (c) {
@@ -1448,7 +1531,10 @@
 
       setPaused: function (paused) {
         this.paused = paused;
+        this.redrawScreen();
+      },
 
+      redrawScreen: function () {
         var c = this.canvas.getContext('2d');
         this.clearScreen(c);
         this.render(c);
