@@ -30,7 +30,7 @@
       width: 150,
       height: 600
     },
-    
+
     color: {
       ball: '#e32d20',
       boxtone: '#009dec',
@@ -42,7 +42,7 @@
     font: {
       nameSprite: '16px "Lucida Grande", Helvetica, Arial'
     },
-    
+
     block: {
       offsetX: 25,
       width: 15,
@@ -55,7 +55,7 @@
       riserLength: 20,
       riserHeight: 4
     },
-    
+
     key: {
       escape: 27,
       enter: 13,
@@ -141,7 +141,7 @@
         "Star Miller", "Steven Hor", "Sui Severance", "Susmitha Girumala", "Tammy Kelly",
         "Tim Head", "Todd Sackett", "Vipul Pathak", "Vishal Gupta", "Yancy Davis"
       ];
-  
+
   var brickPositions = [{"x":0,"y":32},{"x":16,"y":32},{"x":32,"y":32},{"x":48,"y":32},{"x":64,"y":32},{"x":368,"y":32},{"x":384,"y":32},{"x":400,"y":32},{"x":416,"y":32},{"x":432,"y":32},{"x":448,"y":32},{"x":0,"y":40},{"x":16,"y":40},{"x":32,"y":40},{"x":48,"y":40},{"x":64,"y":40},{"x":80,"y":40},{"x":368,"y":40},{"x":384,"y":40},{"x":400,"y":40},{"x":416,"y":40},{"x":432,"y":40},{"x":448,"y":40},{"x":0,"y":48},{"x":16,"y":48},{"x":32,"y":48},{"x":48,"y":48},{"x":64,"y":48},{"x":80,"y":48},{"x":368,"y":48},{"x":384,"y":48},{"x":400,"y":48},{"x":416,"y":48},{"x":432,"y":48},{"x":448,"y":48},{"x":0,"y":56},{"x":16,"y":56},{"x":32,"y":56},{"x":48,"y":56},{"x":64,"y":56},{"x":80,"y":56},{"x":96,"y":56},{"x":368,"y":56},{"x":384,"y":56},{"x":400,"y":56},{"x":416,"y":56},{"x":432,"y":56},{"x":448,"y":56},{"x":0,"y":64},{"x":16,"y":64},{"x":32,"y":64},{"x":64,"y":64},{"x":80,"y":64},{"x":96,"y":64},{"x":368,"y":64},{"x":384,"y":64},{"x":400,"y":64},{"x":416,"y":64},{"x":432,"y":64},{"x":448,"y":64},{"x":0,"y":72},{"x":16,"y":72},{"x":32,"y":72},{"x":64,"y":72},{"x":80,"y":72},{"x":96,"y":72},{"x":160,"y":72},{"x":176,"y":72},{"x":192,"y":72},{"x":240,"y":72},{"x":256,"y":72},{"x":272,"y":72},{"x":304,"y":72},{"x":320,"y":72},{"x":336,"y":72},{"x":384,"y":72},{"x":400,"y":72},{"x":416,"y":72},{"x":480,"y":72},{"x":496,"y":72},{"x":512,"y":72},{"x":528,"y":72},{"x":576,"y":72},{"x":592,"y":72},{"x":640,"y":72},{"x":656,"y":72},{"x":720,"y":72},{"x":736,"y":72},{"x":752,"y":72},{"x":0,"y":80},{"x":16,"y":80},{"x":32,"y":80},{"x":48,"y":80},{"x":64,"y":80},{"x":80,"y":80},{"x":144,"y":80},{"x":160,"y":80},{"x":176,"y":80},{"x":192,"y":80},{"x":208,"y":80},{"x":240,"y":80},{"x":256,"y":80},{"x":272,"y":80},{"x":288,"y":80},{"x":304,"y":80},{"x":320,"y":80},{"x":384,"y":80},{"x":400,"y":80},{"x":416,"y":80},{"x":464,"y":80},{"x":480,"y":80},{"x":496,"y":80},{"x":512,"y":80},{"x":528,"y":80},{"x":544,"y":80},{"x":576,"y":80},{"x":592,"y":80},{"x":640,"y":80},{"x":656,"y":80},{"x":704,"y":80},{"x":720,"y":80},{"x":736,"y":80},{"x":752,"y":80},{"x":768,"y":80},{"x":0,"y":88},{"x":16,"y":88},{"x":32,"y":88},{"x":48,"y":88},{"x":64,"y":88},{"x":80,"y":88},{"x":128,"y":88},{"x":144,"y":88},{"x":160,"y":88},{"x":176,"y":88},{"x":192,"y":88},{"x":208,"y":88},{"x":256,"y":88},{"x":272,"y":88},{"x":288,"y":88},{"x":304,"y":88},{"x":320,"y":88},{"x":384,"y":88},{"x":400,"y":88},{"x":416,"y":88},{"x":464,"y":88},{"x":480,"y":88},{"x":496,"y":88},{"x":512,"y":88},{"x":528,"y":88},{"x":544,"y":88},{"x":576,"y":88},{"x":592,"y":88},{"x":608,"y":88},{"x":624,"y":88},{"x":640,"y":88},{"x":656,"y":88},{"x":704,"y":88},{"x":720,"y":88},{"x":752,"y":88},{"x":768,"y":88},{"x":0,"y":96},{"x":16,"y":96},{"x":32,"y":96},{"x":48,"y":96},{"x":64,"y":96},{"x":80,"y":96},{"x":128,"y":96},{"x":144,"y":96},{"x":160,"y":96},{"x":176,"y":96},{"x":192,"y":96},{"x":208,"y":96},{"x":224,"y":96},{"x":256,"y":96},{"x":272,"y":96},{"x":288,"y":96},{"x":304,"y":96},{"x":320,"y":96},{"x":384,"y":96},{"x":400,"y":96},{"x":416,"y":96},{"x":464,"y":96},{"x":480,"y":96},{"x":496,"y":96},{"x":512,"y":96},{"x":528,"y":96},{"x":544,"y":96},{"x":576,"y":96},{"x":592,"y":96},{"x":608,"y":96},{"x":624,"y":96},{"x":640,"y":96},{"x":656,"y":96},{"x":688,"y":96},{"x":704,"y":96},{"x":720,"y":96},{"x":752,"y":96},{"x":768,"y":96},{"x":784,"y":96},{"x":0,"y":104},{"x":16,"y":104},{"x":32,"y":104},{"x":64,"y":104},{"x":80,"y":104},{"x":96,"y":104},{"x":128,"y":104},{"x":144,"y":104},{"x":192,"y":104},{"x":208,"y":104},{"x":224,"y":104},{"x":272,"y":104},{"x":288,"y":104},{"x":304,"y":104},{"x":384,"y":104},{"x":400,"y":104},{"x":416,"y":104},{"x":464,"y":104},{"x":480,"y":104},{"x":528,"y":104},{"x":544,"y":104},{"x":576,"y":104},{"x":592,"y":104},{"x":608,"y":104},{"x":640,"y":104},{"x":656,"y":104},{"x":688,"y":104},{"x":704,"y":104},{"x":720,"y":104},{"x":736,"y":104},{"x":752,"y":104},{"x":768,"y":104},{"x":784,"y":104},{"x":0,"y":112},{"x":16,"y":112},{"x":32,"y":112},{"x":64,"y":112},{"x":80,"y":112},{"x":96,"y":112},{"x":128,"y":112},{"x":144,"y":112},{"x":192,"y":112},{"x":208,"y":112},{"x":224,"y":112},{"x":272,"y":112},{"x":288,"y":112},{"x":304,"y":112},{"x":384,"y":112},{"x":400,"y":112},{"x":416,"y":112},{"x":464,"y":112},{"x":480,"y":112},{"x":528,"y":112},{"x":544,"y":112},{"x":576,"y":112},{"x":592,"y":112},{"x":608,"y":112},{"x":640,"y":112},{"x":656,"y":112},{"x":688,"y":112},{"x":704,"y":112},{"x":720,"y":112},{"x":736,"y":112},{"x":752,"y":112},{"x":768,"y":112},{"x":784,"y":112},{"x":0,"y":120},{"x":16,"y":120},{"x":32,"y":120},{"x":64,"y":120},{"x":80,"y":120},{"x":96,"y":120},{"x":128,"y":120},{"x":144,"y":120},{"x":192,"y":120},{"x":208,"y":120},{"x":224,"y":120},{"x":272,"y":120},{"x":288,"y":120},{"x":304,"y":120},{"x":384,"y":120},{"x":400,"y":120},{"x":416,"y":120},{"x":464,"y":120},{"x":480,"y":120},{"x":528,"y":120},{"x":544,"y":120},{"x":576,"y":120},{"x":592,"y":120},{"x":608,"y":120},{"x":640,"y":120},{"x":656,"y":120},{"x":688,"y":120},{"x":704,"y":120},{"x":720,"y":120},{"x":0,"y":128},{"x":16,"y":128},{"x":32,"y":128},{"x":48,"y":128},{"x":64,"y":128},{"x":80,"y":128},{"x":96,"y":128},{"x":128,"y":128},{"x":144,"y":128},{"x":160,"y":128},{"x":176,"y":128},{"x":192,"y":128},{"x":208,"y":128},{"x":224,"y":128},{"x":256,"y":128},{"x":272,"y":128},{"x":288,"y":128},{"x":304,"y":128},{"x":320,"y":128},{"x":384,"y":128},{"x":400,"y":128},{"x":416,"y":128},{"x":464,"y":128},{"x":480,"y":128},{"x":496,"y":128},{"x":512,"y":128},{"x":528,"y":128},{"x":544,"y":128},{"x":576,"y":128},{"x":592,"y":128},{"x":608,"y":128},{"x":640,"y":128},{"x":656,"y":128},{"x":688,"y":128},{"x":704,"y":128},{"x":720,"y":128},{"x":752,"y":128},{"x":768,"y":128},{"x":784,"y":128},{"x":0,"y":136},{"x":16,"y":136},{"x":32,"y":136},{"x":48,"y":136},{"x":64,"y":136},{"x":80,"y":136},{"x":96,"y":136},{"x":128,"y":136},{"x":144,"y":136},{"x":160,"y":136},{"x":176,"y":136},{"x":192,"y":136},{"x":208,"y":136},{"x":256,"y":136},{"x":272,"y":136},{"x":288,"y":136},{"x":304,"y":136},{"x":320,"y":136},{"x":384,"y":136},{"x":400,"y":136},{"x":416,"y":136},{"x":464,"y":136},{"x":480,"y":136},{"x":496,"y":136},{"x":512,"y":136},{"x":528,"y":136},{"x":544,"y":136},{"x":576,"y":136},{"x":592,"y":136},{"x":608,"y":136},{"x":640,"y":136},{"x":656,"y":136},{"x":704,"y":136},{"x":720,"y":136},{"x":736,"y":136},{"x":752,"y":136},{"x":768,"y":136},{"x":784,"y":136},{"x":0,"y":144},{"x":16,"y":144},{"x":32,"y":144},{"x":48,"y":144},{"x":64,"y":144},{"x":80,"y":144},{"x":144,"y":144},{"x":160,"y":144},{"x":176,"y":144},{"x":192,"y":144},{"x":208,"y":144},{"x":240,"y":144},{"x":256,"y":144},{"x":272,"y":144},{"x":304,"y":144},{"x":320,"y":144},{"x":336,"y":144},{"x":384,"y":144},{"x":400,"y":144},{"x":416,"y":144},{"x":464,"y":144},{"x":480,"y":144},{"x":496,"y":144},{"x":512,"y":144},{"x":528,"y":144},{"x":544,"y":144},{"x":576,"y":144},{"x":592,"y":144},{"x":608,"y":144},{"x":640,"y":144},{"x":656,"y":144},{"x":704,"y":144},{"x":720,"y":144},{"x":736,"y":144},{"x":752,"y":144},{"x":768,"y":144},{"x":0,"y":152},{"x":16,"y":152},{"x":32,"y":152},{"x":48,"y":152},{"x":64,"y":152},{"x":80,"y":152},{"x":160,"y":152},{"x":176,"y":152},{"x":192,"y":152},{"x":240,"y":152},{"x":256,"y":152},{"x":272,"y":152},{"x":304,"y":152},{"x":320,"y":152},{"x":336,"y":152},{"x":384,"y":152},{"x":400,"y":152},{"x":416,"y":152},{"x":480,"y":152},{"x":496,"y":152},{"x":512,"y":152},{"x":528,"y":152},{"x":576,"y":152},{"x":592,"y":152},{"x":640,"y":152},{"x":656,"y":152},{"x":720,"y":152},{"x":736,"y":152},{"x":752,"y":152},{"x":336,"y":80},{"x":160,"y":104},{"x":160,"y":120},{"x":160,"y":112},{"x":96,"y":48},{"x":352,"y":64},{"x":352,"y":56},{"x":352,"y":48},{"x":352,"y":40},{"x":352,"y":32},{"x":624,"y":80},{"x":624,"y":72},{"x":608,"y":152},{"x":224,"y":88},{"x":224,"y":136},{"x":96,"y":144}].sort(
     function (a, b) {
       if (a.y < b.y || (a.y === b.y && a.x < b.x)) {
@@ -151,7 +151,7 @@
         return 0;
       }
       return 1;
-    });  
+    });
 
   var M = (function () {
     var radians = new Float64Array(360);
@@ -164,7 +164,7 @@
       cosines[degree] = Math.cos(rad);
       sines[degree] = Math.sin(rad);
     }
-    
+
     return {
       // Argument MUST be integer in the range [0, 360)
       radian: function (deg) {
@@ -213,7 +213,7 @@
       }
     };
   }();
-  
+
   var Bounds = function () {
     var sentinel = -1000;
     return {
@@ -222,11 +222,11 @@
       toString: function () {
         return "(" + this.x1 + "," + this.y1 + ") - (" + this.x2 + ", " + this.y2 + ")";
       },
-      
+
       contains: function (x, y) {
         return (x >= this.x1 && x <= this.x2 && y >= this.y1 && y <= this.y2);
       },
-      
+
       isValid: function () {
         return !(this.x1 === sentinel || this.y1 === sentinel ||
                  this.x2 === sentinel || this.y2 === sentinel);
@@ -249,7 +249,7 @@
         this.y2 = Math.min(oldBB.y2, newBB.y2);
         return this;
       },
-      
+
       reset: function () {
         this.x1 = this.y1 = this.x2 = this.y2 = sentinel;
       },
@@ -272,7 +272,7 @@
       }
     };
   };
-  
+
   var BrickState = {
     active: 1,
     dying: 2,
@@ -390,7 +390,7 @@
       containsPoint: function (x, y) {
         return x >= this.bbox.x1 && x <= this.bbox.x2 && y >= this.bbox.y1 && y <= this.bbox.y2;
       },
-      
+
       render: function (c) {
         if (this.state !== BrickState.dead) {
           c.fillStyle = this.fillColor();
@@ -420,7 +420,7 @@
           this.needRemove = false;
           return this.bbox;
         }
-        
+
         if (this.state === BrickState.dying && --this.deathCountdown <= 0) {
           this.destroy();
         }
@@ -455,7 +455,7 @@
 
       setStyle: function (c) {
         c.font = C.font.nameSprite;
-        c.fillStyle = C.color.boxtone;
+        c.fillStyle = 'rgba(0, 157, 236, ' + this.alpha + ')';
         c.textAlign = 'center';
       },
 
@@ -481,16 +481,17 @@
         this.dirtyBounds.x1 = this.x - this.textBBox.width / 2;
         this.dirtyBounds.y1 = this.y - this.textBBox.height / 2;
 
+        this.alpha -= 0.0025;
         this.y += this.velocity;
         this.dirtyBounds.x2 = this.dirtyBounds.x1 + this.textBBox.width;
         this.dirtyBounds.y2 = this.dirtyBounds.y1 + this.textBBox.height + this.velocity;
-        
+
         this.velocity += this.acceleration;
         if (this.velocity > this.maxVelocity) {
           this.velocity = this.maxVelocity;
         }
 
-        if (this.y >= C.height) {
+        if (this.y >= C.height || this.alpha <= 0) {
           this.world.removeSprite(this);
           this.alive = false;
         }
@@ -520,7 +521,7 @@
       edgeT: Triangle(),
 
       move: 12,
-      
+
       bbox: Bounds(),
       oldBBox: Bounds(),
       dirtyBounds: Bounds(),
@@ -528,7 +529,7 @@
       init: function () {
         this.p = M.pos(Math.floor(C.width / 2) - 0.5, C.height - C.bat.heightOffset);
       },
-      
+
       getBBox: function () {
         this.bbox.x1 = this.p.x - this.halfWide;
         this.bbox.x2 = this.p.x + this.halfWide;
@@ -557,7 +558,7 @@
       tsign: function (x, y, x1, y1, x2, y2) {
         return (x - x2) * (y1 - y2) - (x1 - x2) * (y - y2);
       },
-      
+
       overlapT: function (x, y, triangle) {
         var a1 = this.tsign(x, y, triangle[0].x, triangle[0].y, triangle[1].x, triangle[1].y) < 0,
             a2 = this.tsign(x, y, triangle[1].x, triangle[1].y, triangle[2].x, triangle[2].y) < 0;
@@ -672,7 +673,7 @@
         this.p = M.pos(C.width / 2, C.height - C.ball.startHeightOffset);
         this.angle = R.randRange(225, 315);
       },
-      
+
       show: function (c, p, color) {
         c.fillStyle = color || C.color.ball;
         c.beginPath();
@@ -816,7 +817,7 @@
         if (Math.abs(this.angle) < 5 || Math.abs(this.angle - 180) < 5) {
           return R.randRange(-8, 8);
         }
-        
+
         return (R.randRange(-4, 4) + R.randRange(-4, 4)) / 2;
       },
 
@@ -850,7 +851,7 @@
       }
       return cells;
     };
-    
+
     return {
       cells: emptyCells(),
 
@@ -932,11 +933,11 @@
         c.clearRect(x * C.gridSize, y * C.gridSize,
                     C.gridSize, C.gridSize);
       },
-      
+
       clear: function () {
         this.cells = emptyCells();
       },
-      
+
       add: function (obj, bbox) {
         if (!obj.collisionTarget) {
           return;
@@ -985,7 +986,7 @@
       objectsAt: function (x, y) {
         return this.cell(x, y);
       },
-      
+
       registerAt: function (x, y, obj) {
         this.addCellObject(this.cell(x, y), obj);
       },
@@ -1021,7 +1022,7 @@
       reserve: ballCount,
       ball: Ball(),
       alwaysDraw: true,
-      
+
       dirty: true,
 
       init: function (newgame) {
@@ -1039,7 +1040,7 @@
         this.dirty = true;
         return --this.reserve >= 0;
       },
-      
+
       render: function () {
         if (!this.dirty) {
           return;
@@ -1086,11 +1087,11 @@
           this.score = this.displayedScore = initial;
         }
       },
-      
+
       render: function (c) {
         this.world.scorePane.innerHTML = this.displayedScore;
       },
-      
+
       animate: function (c) {
         if (this.displayedScore < this.score) {
           var gap = this.score - this.displayedScore;
@@ -1105,11 +1106,12 @@
 
   function GameState(dom) {
     var ball = Ball();
+
     var state = {
       animationActive: false,
       animating: false,
       awaitingAnimationFrame: false,
-      
+
       canvas: dom.canvas,
       scorePane: dom.score,
       statusPane: dom.status,
@@ -1124,7 +1126,7 @@
       destroyedBricks: 0,
       destroyedNamedBricks: 0,
       namedBrickCount: 0,
-      
+
       objects: [],
       keys: [],
       transients: [],
@@ -1138,7 +1140,7 @@
       state: State.pregame,
 
       nextScreenCountDown: 0,
-      
+
       wall: {
         type: 'wall'
       },
@@ -1281,17 +1283,17 @@
           var p = brickPositions[i];
           this.bricks.push(Brick(p.x + C.block.offsetX, p.y + C.gameTop));
         }
-        
+
         for (i = 0, length = this.bricks.length; i < length; ++i) {
           this.registerObject(this.bricks[i]);
         }
-        
+
         this.registerObject(this.ball);
         this.registerObject(this.paddle);
         this.registerObject(this.score);
         this.registerObject(this.ballReserve);
       },
-      
+
       registerObject: function (obj) {
         obj.world = this;
         this.objects.push(obj);
@@ -1311,7 +1313,7 @@
           }
           return res;
         };
-        
+
         var availableBricks = indexes(this.bricks.length);
         var availableNames = indexes(namedBricks.length);
 
@@ -1322,7 +1324,7 @@
           indexes.splice(n, 1);
           return chosen;
         };
-        
+
         var nextBrick = function () {
           return pickRandom(bricks, availableBricks);
         };
@@ -1425,7 +1427,7 @@
         }
         this.updateTouchState();
       },
-      
+
       onTouchStart: function (e) {
         this.resumeGame(true);
         this.applyTouch(e);
@@ -1494,19 +1496,19 @@
           return false;
         }
       },
-      
+
       onKeyDown: function (e) {
         if (e.keyCode === C.key.escape) {
           this.destroy();
           return;
         }
-        
+
         if (this.state === State.screencleared && this.nextScreenCountDown < 200) {
           this.nextScreenCountDown = 0;
         }
 
         this.resumeGame(e.keyCode === C.key.enter);
-        
+
         if (this.isMovementKey(e.keyCode)) {
           this.keys[e.keyCode] = 1;
         }
@@ -1539,7 +1541,7 @@
         this.clearScreen(c);
         this.render(c);
       },
- 
+
       render: function (c) {
         var context = c || this.canvas.getContext('2d');
         for (var i = 0, length = this.objects.length; i < length; ++i) {
@@ -1554,7 +1556,7 @@
       isFullRedraw: function () {
         return this.redraw || this.state !== State.game;
       },
-     
+
       animate: function () {
         // Using a try-finally here disables js optimization:
         this.animating = true;
@@ -1783,7 +1785,7 @@
       container.setAttribute('style', 'position: relative; z-index: 5; display: block; margin: 15px auto; width: ' + C.width + 'px; height: ' + (C.height + C.statusHeight) + 'px');
       place.appendChild(container);
     }
-    
+
     var statusPane, score, rollCall, rollCallTitle, names;
     var addHUDElements = function () {
       rollCall = container.querySelector('div.ee-rollcall');
@@ -1791,7 +1793,7 @@
         rollCall = document.createElement('div');
         rollCall.classList.add('ee-rollcall');
         rollCall.setAttribute('style', 'position: absolute; left: -' + C.rollCall.width + 'px; top: ' +
-                              C.statusHeight + 'px; margin: 0; padding: 0; padding-left: 15px');        
+                              C.statusHeight + 'px; margin: 0; padding: 0; padding-left: 15px');
         container.appendChild(rollCall);
       }
 
@@ -1810,7 +1812,7 @@
         names.setAttribute('style', 'padding: 0');
         rollCall.appendChild(names);
       }
-      
+
       statusPane = container.querySelector('canvas.status');
       if (!statusPane) {
         statusPane = document.createElement('canvas');
@@ -1820,7 +1822,7 @@
         statusPane.setAttribute('height', C.statusHeight);
         container.appendChild(statusPane);
       }
-      
+
       score = container.querySelector('div.game-score');
       if (!score) {
         score = document.createElement('div');
