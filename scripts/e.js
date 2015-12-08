@@ -481,7 +481,7 @@
         this.dirtyBounds.x1 = this.x - this.textBBox.width / 2;
         this.dirtyBounds.y1 = this.y - this.textBBox.height / 2;
 
-        this.alpha -= 0.0025;
+        this.alpha -= 0.005;
         this.y += this.velocity;
         this.dirtyBounds.x2 = this.dirtyBounds.x1 + this.textBBox.width;
         this.dirtyBounds.y2 = this.dirtyBounds.y1 + this.textBBox.height + this.velocity;
