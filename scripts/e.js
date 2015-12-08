@@ -68,7 +68,7 @@
     ball: {
       radius: 6.5,
       gutter: 50,
-      startHeightOffset: 55
+      startHeightOffset: 75
     },
 
     bat: {
@@ -528,6 +528,12 @@
 
       init: function () {
         this.p = M.pos(Math.floor(C.width / 2) - 0.5, C.height - C.bat.heightOffset);
+        
+        var grid = this.world.grid;
+        if (grid) {
+          grid.removeAllReferences(this);
+          grid.add(this);
+        }
       },
 
       getBBox: function () {
@@ -659,6 +665,8 @@
       speed: 8,
       increment: 2,
 
+      guideDash: [3, 1],
+
       flashCounter: 0,
       flashDirection: -1,
       flashAlpha: 1.0,
@@ -671,7 +679,7 @@
 
       init: function () {
         this.p = M.pos(C.width / 2, C.height - C.ball.startHeightOffset);
-        this.angle = R.randRange(225, 315);
+        this.angle = R.randRange(55, 125);
       },
 
       show: function (c, p, color) {
@@ -680,13 +688,42 @@
         c.arc(p.x, p.y, this.radius, 0, 2 * Math.PI, true);
         c.fill();
       },
+      
+      showBallGuide: function (c, p, color) {
+        c.strokeStyle = color || C.color.ball;
+        c.setLineDash(this.guideDash);
+        c.beginPath();
+        c.moveTo(p.x, p.y);
+        var targetX = this.p.x + M.cos(this.angle) * this.speed * 3;
+        var targetY = this.p.y + M.sin(this.angle) * this.speed * 3;
+        c.lineTo(targetX, targetY);
+
+        var head1Angle = M.normalizeDegrees(this.angle + 165);
+        var head2Angle = M.normalizeDegrees(this.angle - 165);
+        c.lineTo(targetX + M.cos(head1Angle) * 5, targetY + M.sin(head1Angle) * 5);
+        c.moveTo(targetX, targetY);
+        c.lineTo(targetX + M.cos(head2Angle) * 5, targetY + M.sin(head2Angle) * 5);
+        c.stroke();
+        c.setLineDash([]);
+      },
 
       render: function (c) {
         if (this.world && this.world.state === State.outofplay) {
           this.flash(c);
         } else {
           this.show(c, this.p);
+
+          if (this.world) {
+            if (this.isBallGuideNeeded()) {
+              this.showBallGuide(c, this.p);
+            }
+          }
         }
+      },
+
+      isBallGuideNeeded: function () {
+        return (this.world.state === State.pregame || this.world.state === State.balllost
+                || this.world.paused);
       },
 
       animate: function (c) {
@@ -948,6 +985,15 @@
         });
       },
 
+      removeAllReferences: function (obj) {
+        if (!obj.collisionTarget) {
+          return;
+        }
+        this.everyCell(function (x, y) {
+          this.removeAt(x, y, obj);
+        });
+      },
+
       remove: function (obj, bbox) {
         if (!obj.collisionTarget) {
           return;
@@ -956,6 +1002,15 @@
         this.eachCell(box, function (x, y) {
           this.removeAt(x, y, obj);
         });
+      },
+
+      everyCell: function (fn) {
+        fn = fn.bind(this);
+        for (var y = 0; y < nrows; ++y) {
+          for (var x = 0; x < ncols; ++x) {
+            fn(x, y);
+          }
+        }
       },
 
       eachCell: function (box, fn) {
@@ -1127,6 +1182,8 @@
       destroyedNamedBricks: 0,
       namedBrickCount: 0,
 
+      screen: 1,
+
       objects: [],
       keys: [],
       transients: [],
@@ -1235,6 +1292,7 @@
           case State.screencleared:
             this.score.add(15000);
             this.nextScreenCountDown = 300;
+            this.screen++;
             break;
           }
 
@@ -1379,6 +1437,9 @@
       },
 
       resetScreen: function (newgame) {
+        if (newgame) {
+          this.screen = 1;
+        }
         this.redraw = true;
         this.destroyedBricks = 0;
         this.destroyedNamedBricks = 0;
@@ -1507,7 +1568,7 @@
           this.nextScreenCountDown = 0;
         }
 
-        this.resumeGame(e.keyCode === C.key.enter);
+        this.resumeGame(e.keyCode === C.key.enter || this.isMovementKey(e.keyCode));
 
         if (this.isMovementKey(e.keyCode)) {
           this.keys[e.keyCode] = 1;
@@ -1603,7 +1664,7 @@
           if (--this.nextScreenCountDown <= 0) {
             this.nextScreenCountDown = 0;
             this.reset(false);
-            this.setState(State.game);
+            this.setState(State.pregame);
           }
           break;
         }
@@ -1669,10 +1730,16 @@
       showPreGame: function (c) {
         this.setTextStyles(c);
         this.setSubtitleFont(c);
+
+        var msg;
         if (C.touchscreen) {
-          this.message(c, 'Tap to start, touch to left/right to move', C.width / 2, C.height / 2 + 50);
+          msg = this.screen == 1 ? 'Tap to start, touch to left/right to move'
+              : 'Tap to continue';
+          this.message(c, msg, C.width / 2, C.height / 2 + 50);
         } else {
-          this.message(c, 'Hit Enter to start, arrow keys to move', C.width / 2, C.height / 2);
+          msg = this.screen == 1 ? 'Hit Enter to start, arrow keys to move'
+              : 'Hit Enter to continue';
+          this.message(c, msg, C.width / 2, C.height / 2);
         }
         this.resetShadow(c);
       },
