@@ -1076,6 +1076,7 @@
     return {
       reserve: ballCount,
       ball: Ball(),
+      ctx: null,
       alwaysDraw: true,
 
       dirty: true,
@@ -1096,11 +1097,18 @@
         return --this.reserve >= 0;
       },
 
+      getContext: function () {
+        if (!this.ctx) {
+          this.ctx = this.world.statusPane.getContext('2d');
+        }
+        return this.ctx;
+      },
+
       render: function () {
         if (!this.dirty) {
           return;
         }
-        var c = this.world.statusPane.getContext('2d');
+        var c = this.getContext();
         c.clearRect(0, 0, C.width / 2, C.statusHeight);
         for (var i = 0; i < this.reserve; ++i) {
           this.ball.p.x = i * (this.ball.radius * 2 + 5) + this.ball.radius + 5;
@@ -1167,6 +1175,7 @@
       animating: false,
       awaitingAnimationFrame: false,
 
+      ctx: null,
       canvas: dom.canvas,
       scorePane: dom.score,
       statusPane: dom.status,
@@ -1597,14 +1606,21 @@
         this.redrawScreen();
       },
 
+      getContext: function () {
+        if (!this.ctx) {
+          this.ctx = this.canvas.getContext('2d');
+        }
+        return this.ctx;
+      },
+
       redrawScreen: function () {
-        var c = this.canvas.getContext('2d');
+        var c = this.getContext();
         this.clearScreen(c);
         this.render(c);
       },
 
       render: function (c) {
-        var context = c || this.canvas.getContext('2d');
+        var context = c || this.getContext();
         for (var i = 0, length = this.objects.length; i < length; ++i) {
           this.objects[i].render(context);
         }
@@ -1630,7 +1646,7 @@
       },
 
       doAnimate: function () {
-        var context = this.canvas.getContext('2d');
+        var context = this.getContext();
         if (this.isFullRedraw()) {
           this.clearScreen(context);
         }
