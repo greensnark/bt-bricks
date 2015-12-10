@@ -128,7 +128,7 @@
       [
         "Alan Snyder", "Alvin Guingab", "Anna Yap", "Annu Singh", "Anthony DeStefano",
         "Anurag Dwivedi", "Arianne Weston", "Ashwath Akirekadu", "Ashwin Eapen", "Bill Mollock",
-        "Brian Murphy", "Brian Reed", "Brian Scheffey", "Bryant Maltese", "Cameron Horn",
+        "Brian Murphy", "Brian Reed", "Brian Scheffey", "Cameron Horn", 
         "Darshan Shaligram", "Daniel Cook", "Danny Dorsey", "Deepti Paranjape", "Dinesh Bhat",
         "Edna Malloy", "Eileen Mercilliot", "Galit Miller", "George Anderson", "Georgiy Frolov",
         "Greg Delaney", "Greg Persch", "Gregg Ginsberg", "Himanshu Kesar", "Howie Rappaport", "Janice Gluck",
