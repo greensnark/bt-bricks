@@ -662,8 +662,14 @@
       radius: radius || C.ball.radius,
       p: M.pos(0, 0),
       angle: 0,
-      speed: 8,
+
+      speed: 7,
       increment: 2,
+
+      initSpeed: 7,
+      maxSpeed: 10,
+      activeTicks: 0,
+      speedIncreaseTick: 45 * 60, // Speed ticks up so many frames (60fps)
 
       guideDash: [3, 1],
 
@@ -680,6 +686,26 @@
       init: function () {
         this.p = M.pos(C.width / 2, C.height - C.ball.startHeightOffset);
         this.angle = R.randRange(55, 125);
+
+        this.resetSpeed();
+      },
+
+      resetSpeed: function () {
+        this.speed = this.initSpeed;
+        this.activeTicks = 0;
+        console.log("Speed reset: " + this.speed);
+      },
+
+      tickSpeed: function () {
+        if (this.speed >= this.maxSpeed) {
+          return;
+        }
+        ++this.activeTicks;
+        if (this.activeTicks > this.speedIncreaseTick) {
+          this.speed++;
+          console.log("Speed is now: " + this.speed);
+          this.activeTicks = 0;
+        }
       },
 
       show: function (c, p, color) {
@@ -770,9 +796,10 @@
       },
 
       move: function (c) {
+        this.tickSpeed();
         this.initDirtyBounds();
-        for (var i = 0; i < this.speed; i += this.increment) {
-          this.p.addPolar(this.increment, this.angle);
+        for (var i = this.speed; i >= 0; i -= this.increment) {
+          this.p.addPolar(Math.min(this.increment, i), this.angle);
           this.collide(c);
           this.expandDirtyBounds();
 
