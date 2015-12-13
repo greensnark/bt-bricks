@@ -599,7 +599,6 @@
 
       render: function (c) {
         var bbox = this.getBBox();
-        c.font = '48px Helvetica';
         c.fillStyle = this.fill;
         c.beginPath();
 
