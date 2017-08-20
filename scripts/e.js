@@ -1280,9 +1280,7 @@
       },
 
       addScalp: function (name) {
-        if (!this.names.childNodes.length) {
-          this.rollCallTitle.innerHTML = '';
-        }
+        this.rollCallTitle.innerHTML = 'Bricks';
         var li = document.createElement('li');
         li.setAttribute('style', 'font: 10px "Lucida Grande", Helvetica, Arial; color: #999; list-style-type: decimal; margin-left: 15px');
         var span = document.createElement('span');
@@ -1907,8 +1905,7 @@
       if (!rollCall) {
         rollCall = document.createElement('div');
         rollCall.classList.add('ee-rollcall');
-        rollCall.setAttribute('style', 'position: absolute; left: -' + C.rollCall.width + 'px; top: ' +
-                              C.statusHeight + 'px; margin: 0; padding: 0; padding-left: 15px');
+        rollCall.setAttribute('style', `position: absolute; left: -${C.rollCall.width}px; top: 0; margin: 0; padding: 0; padding-left: 15px`);
         container.appendChild(rollCall);
       }
 
@@ -1916,7 +1913,7 @@
       if (!rollCallTitle) {
         rollCallTitle = document.createElement('h1');
         rollCallTitle.classList.add('ee-title');
-        rollCallTitle.setAttribute('style', 'padding: 0; margin: 0; margin-bottom: 0.2em; font: 12px "Lucida Grande", Arial;');
+        rollCallTitle.setAttribute('style', 'padding: 0; padding-top: 10px; margin: 0; margin-bottom: 0.2em; font: 12px "Lucida Grande", Arial;');
         rollCall.appendChild(rollCallTitle);
       }
 
@@ -1924,7 +1921,7 @@
       if (!names) {
         names = document.createElement('ol');
         names.classList.add('names');
-        names.setAttribute('style', 'padding: 0');
+        names.setAttribute('style', 'padding: 0; margin: 2px');
         rollCall.appendChild(names);
       }
 
