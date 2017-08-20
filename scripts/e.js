@@ -1,9 +1,15 @@
-'use strict';
-
 (function () {
+  'use strict';
+
   var C = {
     width: 850,
-    height: 600,
+    height: 450,
+
+    payloadMargin: 5,
+
+    get payloadWidth() {
+      return this.width + this.rollCall.width + this.payloadMargin;
+    },
 
     touchscreen: (function () {
       try {
@@ -28,7 +34,7 @@
 
     rollCall: {
       width: 150,
-      height: 600
+      height: 450
     },
 
     color: {
@@ -80,9 +86,9 @@
       { sc: 200, title: 'Grand Moff' },
       { sc: 100, title: 'Chief Executive Officer' },
       { sc: 80, title: 'Chief Finagling Officer' },
-      { sc: 50, title: 'Vice President, Brickonomics' },
-      { sc: 25, title: 'Principal Powershell Protagonist' },
-      { sc: 10, title: 'Agile Antagonist' },
+      { sc: 50, title: 'Vice President' },
+      { sc: 25, title: 'Powershell Prestidigitator' },
+      { sc: 10, title: 'Sentient Lifeform' },
       { sc: 0, title: 'Use the arrow keys, Luke' }
     ],
 
@@ -128,7 +134,7 @@
       [
         "Alan Snyder", "Alvin Guingab", "Anna Yap", "Annu Singh", "Anthony DeStefano",
         "Anurag Dwivedi", "Arianne Weston", "Ashwath Akirekadu", "Ashwin Eapen", "Bill Mollock",
-        "Brian Murphy", "Brian Reed", "Brian Scheffey", "Cameron Horn", 
+        "Brian Murphy", "Brian Reed", "Brian Scheffey", "Cameron Horn",
         "Darshan Shaligram", "Daniel Cook", "Danny Dorsey", "Deepti Paranjape", "Dinesh Bhat",
         "Edna Malloy", "Eileen Mercilliot", "Galit Miller", "George Anderson", "Georgiy Frolov",
         "Greg Delaney", "Greg Persch", "Gregg Ginsberg", "Himanshu Kesar", "Howie Rappaport", "Janice Gluck",
@@ -528,7 +534,7 @@
 
       init: function () {
         this.p = M.pos(Math.floor(C.width / 2) - 0.5, C.height - C.bat.heightOffset);
-        
+
         var grid = this.world.grid;
         if (grid) {
           grid.removeAllReferences(this);
@@ -713,7 +719,7 @@
         c.arc(p.x, p.y, this.radius, 0, 2 * Math.PI, true);
         c.fill();
       },
-      
+
       showBallGuide: function (c, p, color) {
         c.strokeStyle = color || C.color.ball;
         c.setLineDash(this.guideDash);
@@ -1891,7 +1897,7 @@
     if (!container) {
       container = document.createElement('div');
       container.classList.add('ee-layout');
-      container.setAttribute('style', 'position: relative; z-index: 5; display: block; margin: 15px auto; width: ' + C.width + 'px; height: ' + (C.height + C.statusHeight) + 'px');
+      container.setAttribute('style', 'position: relative; z-index: 5; display: block; margin: 15px auto; margin-right: 0; width: ' + C.width + 'px; height: ' + (C.height + C.statusHeight) + 'px');
       place.appendChild(container);
     }
 
@@ -1991,7 +1997,7 @@
     if (!payload) {
       payload = document.createElement('div');
       payload.setAttribute('id', 'ee-payload');
-      payload.setAttribute('style', 'position: relative; left: -50%; border-radius: 5px; width: 1250px; padding-bottom: 1px; background: #fff; box-shadow: 0 0 15px #000');
+      payload.setAttribute('style', `position: relative; left: -50%; border-radius: 5px; width: ${C.payloadWidth}px; padding-bottom: 1px; background: #fff; box-shadow: 0 0 15px #000`);
       wrapper.appendChild(payload);
     }
     btStartEgg();

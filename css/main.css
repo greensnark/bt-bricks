@@ -7,4 +7,5 @@
   height: 100%;
   opacity: 0.4;
   background: no-repeat url("ea-background.png");
+  background-size: contain;
 }
