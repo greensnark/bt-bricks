@@ -1799,9 +1799,9 @@
 
       setTextStyles: function (c) {
         c.shadowColor = '#999';
-        c.shadowOffsetX = 2;
-        c.shadowOffsetY = 2;
-        c.shadowBlur = 4;
+        c.shadowOffsetX = 0;
+        c.shadowOffsetY = 0;
+        c.shadowBlur = 0;
         c.fillStyle = '#fff';
         c.strokeStyle = '#666';
         c.textAlign = 'center';
