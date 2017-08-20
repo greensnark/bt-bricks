@@ -1280,7 +1280,7 @@
       },
 
       addScalp: function (name) {
-        this.rollCallTitle.innerHTML = 'Bricks';
+        this.rollCallTitle.innerHTML = 'Bricked';
         var li = document.createElement('li');
         li.setAttribute('style', 'font: 10px "Lucida Grande", Helvetica, Arial; color: #999; list-style-type: decimal; margin-left: 15px');
         var span = document.createElement('span');
