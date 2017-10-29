@@ -20,7 +20,7 @@
       }
     })(),
 
-    namedBrickMax: 48, // Only so many named bricks in one screen.
+    namedBrickMax: 40, // Only so many named bricks in one screen.
 
     gridSize: 100,
 
@@ -372,11 +372,17 @@
       },
 
       clearSurroundingBlocks: function (thing) {
-        for (var y = -1; y <= 1; ++y) {
-          for (var x = -1; x <= 1; ++x) {
+        for (var y = -2; y <= 2; ++y) {
+          for (var x = -2; x <= 2; ++x) {
             if ((!x && !y)) {
               continue;
             }
+
+            var distance2 = x * x + y * y;
+            if (distance2 > 2 && R.rand(distance2) !== 0) {
+              continue;
+            }
+
             var blockX = Math.floor(this.p.x + (x + 0.5) * (C.block.width + C.block.gutter)),
                 blockY = Math.floor(this.p.y + (y + 0.5) * (C.block.height + C.block.gutter));
             this.clearBlock(blockX, blockY);
