@@ -82,7 +82,7 @@
     },
 
     scoreRanks: [
-      { sc: 400, title: 'Sith Lord' },
+      { sc: 400, title: 'Emperor' },
       { sc: 200, title: 'Grand Moff' },
       { sc: 100, title: 'Chief Executive Officer' },
       { sc: 80, title: 'Chief Finagling Officer' },
