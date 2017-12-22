@@ -341,14 +341,17 @@
       },
 
       collideWith: function (thing) {
-        if (this.state === BrickState.active) {
-          if (this.name) {
-            // Named bricks go through death throes:
-            this.startDying();
-          } else {
-            this.destroy();
-          }
+        if (this.state !== BrickState.active) {
+          return;
         }
+
+        if (!this.name) {
+          this.destroy();
+          return;
+        }
+
+        // Named bricks go through death throes:
+        this.startDying();
       },
 
       destroy: function () {
@@ -356,11 +359,13 @@
         this.needRemove = true;
         this.world.destroyedBrick(this);
         this.world.score.add(this.getPoints());
-        if (this.name) {
-          this.world.addScalp(this.name);
-          this.animateNameDrop();
-          this.clearSurroundingBlocks(this);
+        if (!this.name) {
+          return;
         }
+
+        this.world.addScalp(this.name);
+        this.animateNameDrop();
+        this.clearSurroundingBlocks(this);
       },
 
       // Animate the name falling away and fading.
@@ -557,8 +562,7 @@
       },
 
       containsPoint: function (x, y) {
-        var bbox = this.getBBox();
-        if (!bbox.contains(x, y)) {
+        if (!this.getBBox().contains(x, y)) {
           return false;
         }
 
@@ -680,7 +684,7 @@
       initSpeed: 7,
       maxSpeed: 10,
       activeTicks: 0,
-      speedIncreaseTick: 45 * 60, // Speed ticks up so many frames (60fps)
+      speedIncreaseTick: 12 * 60, // Speed ticks up so many frames (60fps)
 
       guideDash: [3, 1],
 
@@ -704,19 +708,22 @@
       resetSpeed: function () {
         this.speed = this.initSpeed;
         this.activeTicks = 0;
-        console.log("Speed reset: " + this.speed);
+        console.log(`Speed reset: ${this.speed}, speed increase tick: ${this.speedIncreaseTick}`);
       },
 
       tickSpeed: function () {
         if (this.speed >= this.maxSpeed) {
           return;
         }
+
         ++this.activeTicks;
-        if (this.activeTicks > this.speedIncreaseTick) {
-          this.speed++;
-          console.log("Speed is now: " + this.speed);
-          this.activeTicks = 0;
+        if (this.activeTicks <= this.speedIncreaseTick) {
+          return;
         }
+
+        this.speed += 0.25;
+        console.log("Speed is now: " + this.speed);
+        this.activeTicks = 0;
       },
 
       show: function (c, p, color) {
@@ -747,28 +754,33 @@
       render: function (c) {
         if (this.world && this.world.state === State.outofplay) {
           this.flash(c);
-        } else {
-          this.show(c, this.p);
-
-          if (this.world) {
-            if (this.isBallGuideNeeded()) {
-              this.showBallGuide(c, this.p);
-            }
-          }
+          return;
         }
+
+        this.show(c, this.p);
+
+        if (!this.isBallGuideNeeded()) {
+          return;
+        }
+
+        this.showBallGuide(c, this.p);
       },
 
       isBallGuideNeeded: function () {
-        return (this.world.state === State.pregame || this.world.state === State.balllost
-                || this.world.paused);
+        if (!this.world) {
+          return false;
+        }
+        return (this.world.state === State.pregame
+             || this.world.state === State.balllost
+             || this.world.paused);
       },
 
       animate: function (c) {
-        switch (this.world.state) {
-        case State.game:
-          return this.move(c);
-          break;
+        if (this.world.state !== State.game) {
+          return;
         }
+
+        return this.move(c);
       },
 
       initDirtyBounds: function () {
@@ -1253,7 +1265,7 @@
       paused: false,
 
       init: function () {
-        this.tickBound = this.tick.bind(this);
+        this.tick = this.tick.bind(this);
         this.setState(State.pregame);
         this.registerObjects();
         this.reset(true);
@@ -1851,19 +1863,25 @@
       },
 
       setAnimationActive: function (active) {
-        if (active !== this.animationActive) {
-          this.animationActive = active;
-          if (active) {
-            this.startAnimation();
-          }
+        if (active === this.animationActive) {
+          return;
         }
+
+        this.animationActive = active;
+        if (!active) {
+          return;
+        }
+
+        this.startAnimation();
       },
 
       startAnimation: function () {
-        if (!this.awaitingAnimationFrame) {
-          window.requestAnimationFrame(this.tickBound);
-          this.awaitingAnimationFrame = true;
+        if (this.awaitingAnimationFrame) {
+          return;
         }
+
+        window.requestAnimationFrame(this.tick);
+        this.awaitingAnimationFrame = true;
       },
 
       tick: function () {
