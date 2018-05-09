@@ -890,9 +890,7 @@
           maxCollide = minCollide;
         }
 
-        var collideAngle = (minCollide + maxCollide) / 2;
-        var oldAngle = this.angle;
-        this.angle = this.bounceAngle(collideAngle);
+        this.angle = this.bounceAngle((minCollide + maxCollide) / 2);
       },
 
       bounceAngle: function (collideAngle) {
