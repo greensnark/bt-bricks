@@ -1,9 +1,11 @@
 (function () {
   'use strict';
 
-  var C = {
+  const C = {
     width: 850,
     height: 450,
+
+    referenceFrameMillis: (1000 / 60),
 
     payloadMargin: 5,
 
@@ -98,6 +100,15 @@
   };
   C.right = C.width;
   C.bottom = C.height;
+
+  /**
+   * Returns a function that scales the given time / quantity, which is
+   * relevant to the reference frame, to the correct size for the *current*
+   * frame duration.
+   */
+  function framescale(frameDurationMillis) {
+    return (referenceNumber) => referenceNumber * frameDurationMillis / C.referenceFrameMillis;
+  }
 
   var State = {
     pregame: 0,
@@ -431,14 +442,14 @@
         return this.name? C.color.namedBrick : C.color.boxtone;
       },
 
-      animate: function (c) {
+      animate(c, framescale) {
         if (this.state === BrickState.dead && this.needRemove) {
           this.world.grid.remove(this);
           this.needRemove = false;
           return this.bbox;
         }
 
-        if (this.state === BrickState.dying && --this.deathCountdown <= 0) {
+        if (this.state === BrickState.dying && (this.deathCountdown -= framescale(1)) <= 0) {
           this.destroy();
         }
         return this.state !== BrickState.active ? this.bbox : undefined;
@@ -483,7 +494,7 @@
         this.textBBox.height = 35;
       },
 
-      animate: function (c) {
+      animate(c, framescale) {
         if (!this.textBBox.width) {
           this.measureText(c);
           var xlow = this.x - this.textBBox.width / 2;
@@ -498,12 +509,12 @@
         this.dirtyBounds.x1 = this.x - this.textBBox.width / 2;
         this.dirtyBounds.y1 = this.y - this.textBBox.height / 2;
 
-        this.alpha -= 0.005;
-        this.y += this.velocity;
+        this.alpha -= framescale(0.005);
+        this.y += framescale(this.velocity);
         this.dirtyBounds.x2 = this.dirtyBounds.x1 + this.textBBox.width;
         this.dirtyBounds.y2 = this.dirtyBounds.y1 + this.textBBox.height + this.velocity;
 
-        this.velocity += this.acceleration;
+        this.velocity += framescale(this.acceleration);
         if (this.velocity > this.maxVelocity) {
           this.velocity = this.maxVelocity;
         }
@@ -630,11 +641,11 @@
         c.fill();
       },
 
-      animate: function (c) {
-        return this.applyMovement();
+      animate(c, framescale) {
+        return this.applyMovement(framescale);
       },
 
-      applyMovement: function () {
+      applyMovement: function (framescale) {
         if (this.world.state !== State.game) {
           return null;
         }
@@ -644,14 +655,14 @@
         var oldBBox = this.oldBBox.assign(this.getBBox());
         var didMove = false;
         if (world.keys[C.key.left]) {
-          this.p.x -= this.move;
+          this.p.x -= framescale(this.move);
           if (this.p.x <= this.width / 2) {
             this.p.x = this.width / 2;
           }
           didMove = true;
         }
         if (world.keys[C.key.right]) {
-          this.p.x += this.move;
+          this.p.x += framescale(this.move);
           if (this.p.x >= C.width - this.width / 2) {
             this.p.x = C.width - this.width / 2;
           }
@@ -678,7 +689,7 @@
       p: M.pos(0, 0),
       angle: 0,
 
-      speed: 7,
+      speed: 0,
       increment: 2,
 
       initSpeed: 7,
@@ -711,18 +722,17 @@
         console.log(`Speed reset: ${this.speed}, speed increase tick: ${this.speedIncreaseTick}`);
       },
 
-      tickSpeed: function () {
+      tickSpeed: function (framescale) {
         if (this.speed >= this.maxSpeed) {
           return;
         }
 
-        ++this.activeTicks;
+        this.activeTicks += framescale(1);
         if (this.activeTicks <= this.speedIncreaseTick) {
           return;
         }
 
         this.speed += 0.25;
-        console.log("Speed is now: " + this.speed);
         this.activeTicks = 0;
       },
 
@@ -775,12 +785,12 @@
              || this.world.paused);
       },
 
-      animate: function (c) {
+      animate(c, framescale) {
         if (this.world.state !== State.game) {
           return;
         }
 
-        return this.move(c);
+        return this.move(c, framescale);
       },
 
       initDirtyBounds: function () {
@@ -818,10 +828,10 @@
         return d;
       },
 
-      move: function (c) {
-        this.tickSpeed();
+      move(c, framescale) {
+        this.tickSpeed(framescale);
         this.initDirtyBounds();
-        for (var i = this.speed; i >= 0; i -= this.increment) {
+        for (let i = framescale(this.speed); i >= 0; i -= this.increment) {
           this.p.addPolar(Math.min(this.increment, i), this.angle);
           this.collide(c);
           this.expandDirtyBounds();
@@ -1166,7 +1176,7 @@
         this.dirty = false;
       },
 
-      animate: function () {
+      animate() {
         this.render();
       }
     };
@@ -1203,11 +1213,12 @@
         this.world.scorePane.innerHTML = this.displayedScore;
       },
 
-      animate: function (c) {
+      animate(c, framescale) {
         if (this.displayedScore < this.score) {
-          var gap = this.score - this.displayedScore;
-          var step = (gap > 200) ? 100 :
-              (gap > 50) ? 10 : 1;
+          const gap = this.score - this.displayedScore;
+          const step = Math.ceil(
+            framescale((gap > 200) ? 100 : (gap > 50) ? 10 : 1)
+          );
           this.displayedScore += Math.min(this.score - this.displayedScore, step);
         }
         this.render(c);
@@ -1216,12 +1227,14 @@
   };
 
   function GameState(dom) {
-    var ball = Ball();
+    const ball = Ball();
 
-    var state = {
+    const state = {
       animationActive: false,
       animating: false,
       awaitingAnimationFrame: false,
+
+      lastFrameTimestamp: undefined,
 
       ctx: null,
       canvas: dom.canvas,
@@ -1231,7 +1244,7 @@
       rollCallTitle: dom.rollCallTitle,
       names: dom.names,
 
-      ball: ball,
+      ball,
       ballReserve: BallReserve(),
       paddle: Paddle(),
       bricks: [],
@@ -1262,7 +1275,7 @@
       redraw: true,
       paused: false,
 
-      init: function () {
+      init() {
         this.tick = this.tick.bind(this);
         this.setState(State.pregame);
         this.registerObjects();
@@ -1680,18 +1693,18 @@
         return this.redraw || this.state !== State.game;
       },
 
-      animate: function () {
-        // Using a try-finally here disables js optimization:
-        this.animating = true;
-        this.doAnimate();
-        this.animating = false;
-      },
-
       clearScreen: function (c) {
         c.clearRect(0, 0, C.width, C.height);
       },
 
-      doAnimate: function () {
+      animate: function (framescale) {
+        // Using a try-finally here disables js optimization:
+        this.animating = true;
+        this.doAnimate(framescale);
+        this.animating = false;
+      },
+
+      doAnimate: function (framescale) {
         var context = this.getContext();
         if (this.isFullRedraw()) {
           this.clearScreen(context);
@@ -1704,26 +1717,26 @@
         // the call.
         for (var i = this.transients.length - 1; i >= 0; --i) {
           var tr = this.transients[i];
-          this.checkDirty(tr.animate(context), tr);
+          this.checkDirty(tr.animate(context, framescale), tr);
         }
-        this.checkDirty(this.paddle.animate(context), this.paddle);
-        this.checkDirty(this.ball.animate(context), this.ball);
-        this.score.animate(context);
-        this.ballReserve.animate(context);
+        this.checkDirty(this.paddle.animate(context, framescale), this.paddle);
+        this.checkDirty(this.ball.animate(context, framescale), this.ball);
+        this.score.animate(context, framescale);
+        this.ballReserve.animate(context, framescale);
         for (i = this.bricks.length - 1; i >= 0; --i) {
           var brick = this.bricks[i];
-          this.checkDirty(brick.animate(context), brick);
+          this.checkDirty(brick.animate(context, framescale), brick);
         }
         this.redrawDirty(context);
         this.showGameState(context);
         this.redraw = false;
-        this.applyStateTransitions();
+        this.applyStateTransitions(framescale);
       },
 
       applyStateTransitions: function () {
         switch (this.state) {
         case State.screencleared:
-          if (--this.nextScreenCountDown <= 0) {
+          if ((this.nextScreenCountDown -= framescale(1)) <= 0) {
             this.nextScreenCountDown = 0;
             this.reset(false);
             this.setState(State.pregame);
@@ -1882,10 +1895,13 @@
         this.awaitingAnimationFrame = true;
       },
 
-      tick: function () {
+      tick(now) {
+        const elapsedTimeMillis = Math.min(60, (now - (this.lastFrameTimestamp ?? 0)));
+        this.lastFrameTimestamp = now;
+
         this.awaitingAnimationFrame = false;
         if (!this.paused) {
-          this.animate();
+          this.animate(framescale(elapsedTimeMillis));
         }
         if (this.animationActive) {
           this.startAnimation();
